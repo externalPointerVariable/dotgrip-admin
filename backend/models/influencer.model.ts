@@ -2,109 +2,96 @@ import { Schema, model, Document } from "mongoose";
 
 interface IInfluencer extends Document {
   name: string;
-  email: string;
-  username: string;
-  bio?: string;
-  profilePicture?: string;
-  socialMedia: {
-    instagram?: string;
-    youtube?: string;
-    tiktok?: string;
-    twitter?: string;
-  };
-  Instagram: {
+  instagramLink: string;
+  primeNiche: string;
+  contentKeywords?: string[];
+  audienceCityTier?: string;
+  instagram: {
     averageLikes?: number;
     averageComments?: number;
     averageViews?: number;
+    averageShares?: number;
+    followerCount?: number;
+    lastUpdated?: Date;
   };
-  category: string;
-  isVerified: boolean;
-  rating?: number;
-  location?: string;
-  contactInfo: {
-    phone?: string;
-    email: string;
+  contentRating: 1 | 2 | 3 | 4 | 5;
+  Gender: "male" | "female" | "other";
+  onboardDate: Date;
+  age?: number;
+  contact: [
+    {
+      type: "self" | "manager" | "agency";
+      email?: string;
+      phone?: string;
+    },
+  ];
+  address?: [
+    {
+      city?: string;
+      state?: string;
+      country?: string;
+      zipCode?: string;
+      region: "urban" | "rural";
+    },
+  ];
+  plan: {
+    pricing: "lite" | "standard" | "premium";
+    renewalDate: Date;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  taskStatus: "pending" | "approved";
 }
 
-const influencerSchema = new Schema<IInfluencer>(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-    },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    bio: {
-      type: String,
-      maxlength: 500,
-    },
-    profilePicture: {
-      type: String,
-    },
-    socialMedia: {
-      instagram: String,
-      youtube: String,
-      tiktok: String,
-      twitter: String,
-    },
-    Instagram: {
-      averageLikes: Number,
-      averageComments: Number,
-      averageViews: Number,
-    },
-    category: {
-      type: String,
-      required: true,
-      enum: [
-        "Fashion",
-        "Fitness",
-        "Food",
-        "Travel",
-        "Tech",
-        "Beauty",
-        "Lifestyle",
-        "Gaming",
-        "Other",
-      ],
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    rating: {
-      type: Number,
-      min: 0,
-      max: 5,
-    },
-    location: {
-      type: String,
-    },
-    contactInfo: {
-      phone: String,
-      email: {
+const InfluencerSchema = new Schema<IInfluencer>({
+  name: { type: String, required: true },
+  instagramLink: { type: String, required: true },
+  primeNiche: { type: String, required: true },
+  contentKeywords: { type: [String], required: true },
+  audienceCityTier: { type: String, required: true },
+  instagram: {
+    averageLikes: { type: Number },
+    averageComments: { type: Number },
+    averageViews: { type: Number },
+    averageShares: { type: Number },
+    followerCount: { type: Number },
+    lastUpdated: { type: Date },
+  },
+  contentRating: { type: Number, enum: [1, 2, 3, 4, 5], required: true },
+  Gender: { type: String, enum: ["male", "female", "other"], required: true },
+  onboardDate: { type: Date, default: Date.now },
+  age: { type: Number, required: true },
+  contact: [
+    {
+      type: {
         type: String,
+        enum: ["self", "manager", "agency"],
         required: true,
       },
+      email: { type: String, required: true },
+      phone: { type: String, required: true },
     },
+  ],
+  address: [
+    {
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      country: { type: String, required: true },
+      zipCode: { type: String, required: true },
+      region: { type: String, enum: ["urban", "rural"], required: true },
+    },
+  ],
+  plan: {
+    pricing: {
+      type: String,
+      enum: ["lite", "standard", "premium"],
+      required: true,
+    },
+    renewalDate: { type: Date, required: true },
   },
-  {
-    timestamps: true,
+  taskStatus: {
+    type: String,
+    enum: ["pending", "approved"],
+    default: "pending",
   },
-);
+});
 
-export const Influencer = model<IInfluencer>("Influencer", influencerSchema);
-export type { IInfluencer };
+export const Influencer = model<IInfluencer>("Influencer", InfluencerSchema);
