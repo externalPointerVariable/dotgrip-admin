@@ -5,13 +5,14 @@ interface IInfluencer extends Document {
   instagramLink: string;
   primeNiche: string;
   contentKeywords?: string[];
-  audienceCityTier?: string;
+  audienceCityTier?: string[];
   instagram: {
     averageLikes?: number;
     averageComments?: number;
     averageViews?: number;
     averageShares?: number;
     followerCount?: number;
+    followerCountString?: string;
     lastUpdated?: Date;
   };
   contentRating: 1 | 2 | 3 | 4 | 5;
@@ -46,13 +47,14 @@ const InfluencerSchema = new Schema<IInfluencer>({
   instagramLink: { type: String, required: true },
   primeNiche: { type: String, required: true },
   contentKeywords: { type: [String], required: true },
-  audienceCityTier: { type: String, required: true },
+  audienceCityTier: { type: [String], required: true },
   instagram: {
     averageLikes: { type: Number },
     averageComments: { type: Number },
     averageViews: { type: Number },
     averageShares: { type: Number },
     followerCount: { type: Number },
+    followerCountString: { type: String },
     lastUpdated: { type: Date },
   },
   contentRating: { type: Number, enum: [1, 2, 3, 4, 5], required: true },
