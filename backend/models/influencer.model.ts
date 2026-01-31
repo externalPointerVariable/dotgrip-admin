@@ -6,7 +6,7 @@ interface IInfluencer extends Document {
   primeNiche: string;
   contentKeywords?: string[];
   audienceCityTier?: string[];
-  instagram: {
+  instagram?: {
     averageLikes?: number;
     averageComments?: number;
     averageViews?: number;
@@ -14,7 +14,7 @@ interface IInfluencer extends Document {
     followerCount?: number;
     followerCountString?: string;
     lastUpdated?: Date;
-  };
+  } | null;
   contentRating: 1 | 2 | 3 | 4 | 5;
   Gender: "male" | "female" | "other";
   onboardDate: Date;
@@ -49,13 +49,19 @@ const InfluencerSchema = new Schema<IInfluencer>({
   contentKeywords: { type: [String], required: true },
   audienceCityTier: { type: [String], required: true },
   instagram: {
-    averageLikes: { type: Number },
-    averageComments: { type: Number },
-    averageViews: { type: Number },
-    averageShares: { type: Number },
-    followerCount: { type: Number },
-    followerCountString: { type: String },
-    lastUpdated: { type: Date },
+    type: new Schema(
+      {
+        averageLikes: { type: Number },
+        averageComments: { type: Number },
+        averageViews: { type: Number },
+        averageShares: { type: Number },
+        followerCount: { type: Number },
+        followerCountString: { type: String },
+        lastUpdated: { type: Date },
+      },
+      { _id: false },
+    ),
+    default: null,
   },
   contentRating: { type: Number, enum: [1, 2, 3, 4, 5], required: true },
   Gender: { type: String, enum: ["male", "female", "other"], required: true },
