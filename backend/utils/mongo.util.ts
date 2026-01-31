@@ -3,7 +3,8 @@ import { config } from "dotenv";
 
 config();
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mydb";
+const MONGO_URI =
+  process.env.DATABASE_URL || "mongodb://127.0.0.1:27017/dotGripAdmin";
 
 export const connectDB = async (): Promise<void> => {
   try {
@@ -14,3 +15,5 @@ export const connectDB = async (): Promise<void> => {
     process.exit(1);
   }
 };
+
+export default connectDB;
