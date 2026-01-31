@@ -97,3 +97,4 @@ const InfluencerSchema = new Schema<IInfluencer>({
 });
 
 export const Influencer = model<IInfluencer>("Influencer", InfluencerSchema);
+export default Influencer;
