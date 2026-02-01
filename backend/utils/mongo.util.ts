@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
-import { config } from "dotenv";
+import { ENV } from "../config/config";
 
-config();
-
-const MONGO_URI =
-  process.env.DATABASE_URL || "mongodb://127.0.0.1:27017/dotGripAdmin";
 
 export const connectDB = async (): Promise<void> => {
   try {
