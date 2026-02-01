@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import router from "./routes/test_put.ts";
 import connectDB from "./utils/mongo.util.ts";
+import {AuthRoutes}  from "./routes/auth.routes.ts";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello, World!" });
 });
 
-app.use("/test", router);
+app.use("/api/auth", AuthRoutes);
 
 connectDB()
   .then(() => [
