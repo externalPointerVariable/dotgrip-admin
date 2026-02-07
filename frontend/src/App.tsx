@@ -1,9 +1,26 @@
+import { useState, useEffect } from "react";
+import Sidebar from "./components/Sidebar";
+import Header from "./components/header/Header";
+
 function App() {
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(
+    localStorage.getItem("sidebarCollapsed") === "true"
+  );
+
+  // keep localStorage in sync
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
+  }, [isCollapsed]);
+
   return (
     <>
-      <div>
-        <h1 className="text-3xl font-bold underline">Welcome to the App!</h1>
-      </div>
+      <Header
+        heading="Dashboard"
+        subheading="Overview of your influencer network"
+        onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        isCollapsed={isCollapsed}
+      />
+      <Sidebar isCollapsed={isCollapsed} />
     </>
   );
 }
