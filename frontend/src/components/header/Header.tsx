@@ -17,12 +17,16 @@ interface Notification {
 }
 
 const Header: React.FC<HeaderProps> = ({ heading, subheading, onToggleCollapse, isCollapsed }) => {
-    const [notifications, setNotifications] = useState<Notification[]>([]); 
+  const [notifications, setNotifications] = useState<Notification[]>([
+    { id: 1, message: "New user signed up", read: false },
+    { id: 2, message: "Database backup completed", read: false },
+  ]);
+  const [notificationActive, setNotificationActive] = useState<boolean>(false);
 
   return (
     <Flex
       as="header"
-      bg="gray.900"
+      bg="gray.800"
       color="white"
       align="center"
       justify="space-between"
@@ -32,14 +36,8 @@ const Header: React.FC<HeaderProps> = ({ heading, subheading, onToggleCollapse, 
     >
       {/* Left side: Collapse toggle + Title */}
       <Flex align="center">
-        <IconButton
-        aria-label="Toggle sidebar"
-        onClick={onToggleCollapse}
-        variant="ghost"
-        color="white"
-        mr={3}
-        >
-        {isCollapsed ? <TbLayoutSidebarRightExpand size={22} /> : <TbLayoutSidebarLeftExpand size={22} />}
+        <IconButton aria-label="Toggle sidebar" onClick={onToggleCollapse} color="white" variant="ghost" mr={3}>
+          {isCollapsed ? <TbLayoutSidebarRightExpand size={22} /> : <TbLayoutSidebarLeftExpand size={22} />}
         </IconButton>
         <Box>
           <Text fontSize="2xl" fontWeight="bold">
@@ -53,19 +51,51 @@ const Header: React.FC<HeaderProps> = ({ heading, subheading, onToggleCollapse, 
 
       {/* Right side: Notification Bell */}
       <Box position="relative">
-        <IconButton aria-label="Notifications" variant="ghost" color="white">
+        <IconButton
+          aria-label="Notifications"
+          variant="ghost"
+          color="white"
+          onClick={() => setNotificationActive(!notificationActive)}
+        >
           <LuBell size={24} />
         </IconButton>
-        {notifications.length > 0 ? (
-        <Badge
-          position="absolute"
-          top="2"
-          right="2"
-          bg="red.500"
-          borderRadius="full"
-          boxSize="3"
-        />
-        ) : null}
+
+        {notifications.length > 0 && (
+          <Badge
+            position="absolute"
+            top="0"
+            right="0"
+            transform="translate(50%, -50%)"   // ✅ shifts badge to corner
+            bg="red.500"
+            color="white"
+            borderRadius="full"
+            fontSize="xs"
+            px={2}
+            py={1}
+          >
+            {notifications.length}
+          </Badge>
+        )}
+
+        {notificationActive && (
+          <Box
+            position="absolute"
+            right="0"
+            mt={2}
+            bg="gray.700"
+            p={3}
+            borderRadius="md"
+            boxShadow="lg"
+            minW="250px"
+            zIndex={10}
+          >
+            {notifications.map(n => (
+              <Text key={n.id} fontSize="sm" color={n.read ? "gray.400" : "white"}>
+                {n.message}
+              </Text>
+            ))}
+          </Box>
+        )}
       </Box>
     </Flex>
   );
