@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import connectDB from "./utils/mongo.util.ts";
-import {AuthRoutes}  from "./routes/auth.routes.ts";
+import { AuthRoutes } from "./routes/auth.routes.ts";
+import influencerRoutes from "./routes/influencer.routes.ts";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", AuthRoutes);
+app.use("/api/influencers", influencerRoutes);
 
 connectDB()
   .then(() => [
