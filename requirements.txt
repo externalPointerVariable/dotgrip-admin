@@ -1,0 +1,47 @@
+Dotgrip admin panel:
+
+1. Dataset details :
+	Name: name of the influencer
+	IG Link: Influencer's Instagram link [Unique]
+	Followers: Influencer's followers in string
+	Followers in number: Number of followers as raw number
+	Prime Niche[Single Option]: prime field 
+	Content Keyword[Multiple option]: Type of content 
+	Audience City tier[Single Option]: 
+	Content Rating (out of 5): Manually Added
+	Gender: 
+	Onboard Date:
+	Age: 
+	City[2 Location]: 
+	State[2 Locations]: 
+	Country [2 Location]:
+	Region: Urban , Rural 
+	Average views[compare last 10 videos]:
+	Average Like [compare last 10 videos]:
+	Average Comment[compare last 10 videos]:
+	Average Share[compare last 10 videos]:
+	pricing: Multiple price plans [plan renewal Date]
+	Phone: Contains influencer's contact number
+	Contact type: Self, Manager=>{Manager Name}
+	Email: Influencer's Email
+	Task Status [Hidden]: Approved/Pending
+
+2. Our Goals :
+	a. Centralized data storage for influencers.
+	b. Regular updation when api is hit {
+		Average views[compare last 10 videos]:
+		Average Like [compare last 10 videos]:
+		Average Comment[compare last 10 videos]:
+		Average Share[compare last 10 videos]:
+		}
+	c. Multiple field filter for influencers [].
+	d. Export selected data in the form of excel.
+	e. Data uniquiness based on Instagram id.
+	f. Import data from google sheet.
+	g. Remove the influencers based on their profile inactivity then add it in the 	inactive profiles.
+	h. Different Page for pending task.
+	i. Name based search and link based search.
+	j. JWT based login.
+
+3. Queries:
+	a. Time interval in which the auto update will trigger.

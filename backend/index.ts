@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
-import connectDB from "./utils/mongo.util.ts";
-import {AuthRoutes}  from "./routes/auth.routes.ts";
+import connectDB from "./utils/mongo.utils.ts";
+import { AuthRoutes } from "./routes/auth.routes.ts";
+import influencerRoutes from "./routes/influencer.routes.ts";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,10 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ message: "Hello, World!" });
+  res.json({ message: "Dot Grip Admin is Live" });
 });
 
 app.use("/api/auth", AuthRoutes);
+app.use("/api/influencers", influencerRoutes);
 
 connectDB()
   .then(() => [
