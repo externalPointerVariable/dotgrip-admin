@@ -1,23 +1,24 @@
 import express from "express";
 import { Influencer } from "../models/influencer.model";
+import authorize from "../middleware/auth.middleware";
+import { getInstagramDetails } from "../utils/instagram.utils";
 
 const router = express.Router();
+// router.use(authorize);
 
-const authorize = (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction,
-) => {
-  if (req.role == "admin") next();
-  res.status(403).json({ message: "Access denied" });
-};
-
-router.use(authorize);
-
-router.get("/", async (req, res) => {
+router.get("/", async (req: any, res: any) => {
   try {
     const influencers = await Influencer.find();
     res.json(influencers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/instagram/:username", async (req, res) => {
+  try {
+    const details = await getInstagramDetails(req.params.username);
+    res.json(details);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
