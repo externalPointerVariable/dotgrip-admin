@@ -33,26 +33,52 @@ interface SidebarProps {
   onActiveItemChange: (item: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onActiveItemChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  isCollapsed,
+  onActiveItemChange,
+}) => {
   const [activeItem, setActiveItem] = useState<string>("dashboard");
   useEffect(() => {
     onActiveItemChange(activeItem);
   }, [activeItem]);
 
-
-
   // Menu items now include the component reference
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LuLayoutDashboard, component: Dashboard },
-    { id: "database", label: "Database", icon: LuDatabase, component: Database },
-    { id: "tasks", label: "Pending Tasks", icon: LuClock, component: PendingTasks },
-    { id: "inactive", label: "Inactive Profiles", icon: LuUserX, component: InactiveProfiles },
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: LuLayoutDashboard,
+      component: Dashboard,
+    },
+    {
+      id: "database",
+      label: "Database",
+      icon: LuDatabase,
+      component: Database,
+    },
+    {
+      id: "tasks",
+      label: "Pending Tasks",
+      icon: LuClock,
+      component: PendingTasks,
+    },
+    {
+      id: "inactive",
+      label: "Inactive Profiles",
+      icon: LuUserX,
+      component: InactiveProfiles,
+    },
     { id: "profile", label: "Profile", icon: LuUserCheck, component: Profile },
-    { id: "settings", label: "Settings", icon: LuSettings, component: Settings },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: LuSettings,
+      component: Settings,
+    },
   ];
 
   // Find the active menu item
-  const activeMenu = menuItems.find(item => item.id === activeItem);
+  const activeMenu = menuItems.find((item) => item.id === activeItem);
 
   return (
     <Flex>
@@ -62,6 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onActiveItemChange }) =>
         bg="gray.800"
         color="white"
         h="88.5vh"
+        top="11.5vh"
         w={isCollapsed ? "80px" : "250px"}
         p={6}
         position="fixed"
@@ -69,7 +96,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onActiveItemChange }) =>
       >
         {/* Branding */}
         <VStack gap={2} mb={8}>
-          <Image src="https://dotgrip.com/logo.png" alt="Dotgrip Logo" boxSize="50px" />
+          <Image
+            src="https://dotgrip.com/logo.png"
+            alt="Dotgrip Logo"
+            boxSize="50px"
+          />
           {!isCollapsed && (
             <>
               <Text fontSize="2xl" fontWeight="bold">
@@ -95,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onActiveItemChange }) =>
               _hover={{ bg: "gray.700" }}
               color="white"
             >
-              <Icon as={icon} mr={2} />
+              <Icon as={icon} mr={!isCollapsed ? 2 : 0} />
               {!isCollapsed && label}
             </Button>
           ))}
@@ -119,7 +150,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onActiveItemChange }) =>
       </Flex>
 
       {/* Content Area */}
-      <Box flex="1" ml={isCollapsed ? "80px" : "250px"} p={6}>
+      <Box
+        flex="1"
+        position="relative"
+        top="11.5vh"
+        ml={isCollapsed ? "80px" : "250px"}
+        p={6}
+      >
         {activeMenu && <activeMenu.component />}
       </Box>
     </Flex>

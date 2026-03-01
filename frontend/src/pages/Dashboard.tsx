@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   Box,
   SimpleGrid,
@@ -45,16 +45,18 @@ const Dashboard: React.FC = () => {
     <Box>
       {/* Metrics Section */}
       <SimpleGrid
-        columns={{ base: 1, md: 3 }}   // 3 cards side by side on desktop
-        gap={10}                   // more space between cards
+        columns={{ base: 1, md: 3 }} // 3 cards side by side on desktop
+        gap={10} // more space between cards
         mb={10}
       >
         <Stat.Root
           bg="gray.700"
-          p={8}                         // larger padding
-          borderRadius="lg"             // slightly bigger radius
+          transitionDuration="0.3s"
+          _hover={{ transform: "scale(1.02)" }} // subtle hover effect
+          p={8} // larger padding
+          borderRadius="lg" // slightly bigger radius
           color="white"
-          fontSize="lg"                 // bigger text overall
+          fontSize="lg" // bigger text overall
         >
           <Flex justify="space-between" align="center" mb={2}>
             <Stat.Label fontSize="lg">Total Influencers</Stat.Label>
@@ -68,6 +70,8 @@ const Dashboard: React.FC = () => {
         </Stat.Root>
 
         <Stat.Root
+          transitionDuration="0.3s"
+          _hover={{ transform: "scale(1.02)" }}
           bg="gray.700"
           p={8}
           borderRadius="lg"
@@ -83,6 +87,8 @@ const Dashboard: React.FC = () => {
         </Stat.Root>
 
         <Stat.Root
+          transitionDuration="0.3s"
+          _hover={{ transform: "scale(1.02)" }}
           bg="gray.700"
           p={8}
           borderRadius="lg"
@@ -99,7 +105,15 @@ const Dashboard: React.FC = () => {
       </SimpleGrid>
 
       {/* Top Niches - Full Width with improved spacing */}
-      <Card.Root bg="gray.700" color="white" mb={10} p={8} borderRadius="lg">
+      <Card.Root
+        transitionDuration="0.3s"
+        _hover={{ transform: "scale(1.01)" }}
+        bg="gray.700"
+        color="white"
+        mb={10}
+        p={8}
+        borderRadius="lg"
+      >
         <Card.Title>
           <Text fontSize="2xl" fontWeight="bold">
             Top Niches
@@ -108,21 +122,24 @@ const Dashboard: React.FC = () => {
         <Card.Body>
           <VStack align="stretch" gap={5}>
             {topNiches.map((niche) => (
-            <Stat.Root>
-              <Flex gap={2} align="center" justifyContent={"space-between"}>
-                <Stat.Label fontSize="lg">{niche.name}</Stat.Label>
-                <Stat.Label fontSize="lg"><span>{niche.influencers}</span> Influencers</Stat.Label>
-              </Flex>
-              <Progress.Root
-              width={"90%"}
-              defaultValue={niche.progressValue }
-              colorPalette={"cyan"}
-              variant={"outline"}>
-                <Progress.Track>
-                  <Progress.Range />
-                </Progress.Track>
-              </Progress.Root>
-            </Stat.Root>
+              <Stat.Root>
+                <Flex gap={2} align="center" justifyContent={"space-between"}>
+                  <Stat.Label fontSize="lg">{niche.name}</Stat.Label>
+                  <Stat.Label fontSize="lg">
+                    <span>{niche.influencers}</span> Influencers
+                  </Stat.Label>
+                </Flex>
+                <Progress.Root
+                  width={"90%"}
+                  defaultValue={niche.progressValue}
+                  colorPalette={"cyan"}
+                  variant={"outline"}
+                >
+                  <Progress.Track borderRadius="full">
+                    <Progress.Range borderRadius="full" />
+                  </Progress.Track>
+                </Progress.Root>
+              </Stat.Root>
             ))}
           </VStack>
         </Card.Body>

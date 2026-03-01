@@ -1,7 +1,19 @@
-import { Flex, Box, Text, IconButton, Badge } from "@chakra-ui/react";
+import {
+  Flex,
+  Box,
+  Text,
+  IconButton,
+  Badge,
+  MenuRoot,
+  Menu,
+  Portal,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { LuBell } from "react-icons/lu";
-import { TbLayoutSidebarLeftExpand, TbLayoutSidebarRightExpand } from "react-icons/tb";
+import {
+  TbLayoutSidebarLeftExpand,
+  TbLayoutSidebarRightExpand,
+} from "react-icons/tb";
 
 interface HeaderProps {
   heading: string;
@@ -16,12 +28,16 @@ interface Notification {
   read: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ heading, subheading, onToggleCollapse, isCollapsed }) => {
+const Header: React.FC<HeaderProps> = ({
+  heading,
+  subheading,
+  onToggleCollapse,
+  isCollapsed,
+}) => {
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: 1, message: "New user signed up", read: false },
     { id: 2, message: "Database backup completed", read: false },
   ]);
-  const [notificationActive, setNotificationActive] = useState<boolean>(false);
 
   return (
     <Flex
@@ -30,14 +46,27 @@ const Header: React.FC<HeaderProps> = ({ heading, subheading, onToggleCollapse, 
       color="white"
       align="center"
       justify="space-between"
+      position="fixed"
+      w="100%"
+      zIndex={1000}
       px={6}
       py={4}
       boxShadow="sm"
     >
       {/* Left side: Collapse toggle + Title */}
       <Flex align="center">
-        <IconButton aria-label="Toggle sidebar" onClick={onToggleCollapse} color="white" variant="ghost" mr={3}>
-          {isCollapsed ? <TbLayoutSidebarRightExpand size={22} /> : <TbLayoutSidebarLeftExpand size={22} />}
+        <IconButton
+          aria-label="Toggle sidebar"
+          onClick={onToggleCollapse}
+          color="white"
+          variant="ghost"
+          mr={3}
+        >
+          {isCollapsed ? (
+            <TbLayoutSidebarRightExpand size={22} />
+          ) : (
+            <TbLayoutSidebarLeftExpand size={22} />
+          )}
         </IconButton>
         <Box>
           <Text fontSize="2xl" fontWeight="bold">
@@ -49,54 +78,43 @@ const Header: React.FC<HeaderProps> = ({ heading, subheading, onToggleCollapse, 
         </Box>
       </Flex>
 
-      {/* Right side: Notification Bell */}
-      <Box position="relative">
-        <IconButton
-          aria-label="Notifications"
-          variant="ghost"
-          color="white"
-          onClick={() => setNotificationActive(!notificationActive)}
-        >
-          <LuBell size={24} />
-        </IconButton>
-
-        {notifications.length > 0 && (
-          <Badge
-            position="absolute"
-            top="0"
-            right="0"
-            transform="translate(50%, -50%)"   // ✅ shifts badge to corner
-            bg="red.500"
-            color="white"
-            borderRadius="full"
-            fontSize="xs"
-            px={2}
-            py={1}
-          >
-            {notifications.length}
-          </Badge>
-        )}
-
-        {notificationActive && (
-          <Box
-            position="absolute"
-            right="0"
-            mt={2}
-            bg="gray.700"
-            p={3}
-            borderRadius="md"
-            boxShadow="lg"
-            minW="250px"
-            zIndex={10}
-          >
-            {notifications.map(n => (
-              <Text key={n.id} fontSize="sm" color={n.read ? "gray.400" : "white"}>
-                {n.message}
-              </Text>
-            ))}
-          </Box>
-        )}
-      </Box>
+      <MenuRoot>
+        <Menu.Trigger asChild>
+          <IconButton aria-label="User Menu" variant="ghost" color="white">
+            <LuBell size={24} />
+            {notifications.length > 0 && (
+              <Badge
+                position="absolute"
+                top="0"
+                right="0"
+                transform="translate(50%, -50%)" // ✅ shifts badge to corner
+                bg="red.500"
+                color="white"
+                borderRadius="full"
+                fontSize="xs"
+                px={2}
+                py={1}
+              >
+                {notifications.length}
+              </Badge>
+            )}
+          </IconButton>
+        </Menu.Trigger>
+        <Portal>
+          <Menu.Positioner>
+            <Menu.Content>
+              {notifications.map((n) => (
+                <Menu.Item
+                  value={n.id.toString()}
+                  color={n.read ? "gray.400" : "yellow.400"}
+                >
+                  {n.message}
+                </Menu.Item>
+              ))}
+            </Menu.Content>
+          </Menu.Positioner>
+        </Portal>
+      </MenuRoot>
     </Flex>
   );
 };
