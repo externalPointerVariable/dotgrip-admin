@@ -3,7 +3,7 @@ import { Schema, model, Document } from "mongoose";
 interface IInfluencer extends Document {
   name: string;
   instagramLink: string;
-  primeNiche: string;
+  primeNiche?: string;
   contentKeywords?: string[];
   audienceCityTier?: string[];
   instagram?: {
@@ -13,6 +13,7 @@ interface IInfluencer extends Document {
     averageShares?: number;
     followerCount?: number;
     followerCountString?: string;
+    lastTenPosts?: JSON[];
     lastUpdated?: Date;
   } | null;
   contentRating: 1 | 2 | 3 | 4 | 5;
