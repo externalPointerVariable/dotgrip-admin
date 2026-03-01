@@ -34,8 +34,8 @@ static async register(req: express.Request, res: express.Response) {
     await newUser.save();
 
     return res.status(204).json({ Message: "User registered successfully"});
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
   }
 }
 
@@ -60,16 +60,16 @@ static async register(req: express.Request, res: express.Response) {
       const token = AuthController.generateToken(user._id.toString(), user.role);
 
       return res.status(200).json({ token });
-    } catch (err: any) {
-      return res.status(500).json({ error: err.message });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
     }
   }
 
   static verifyToken(token: string) {
     try {
       return jwt.verify(token, ENV.JWT_SECRET);
-    } catch (err) {
-      throw new Error("Invalid or expired token");
+    } catch (error: any) {
+      throw new Error("Invalid or expired token: " + error.message);
     }
   }
 }

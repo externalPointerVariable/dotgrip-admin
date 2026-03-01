@@ -1,84 +1,64 @@
-import puppeteer from "puppeteer";
+import { ApifyClient } from 'apify-client';
+import { ENV } from '../config/config';
 
-const followerStringToNumber = (followerString: string): number => {
-  const lower = followerString.toLowerCase();
-  const multiplier = lower.endsWith("k")
-    ? 1000
-    : lower.endsWith("m")
-    ? 1000000
-    : 1;
-  const numberPart = parseFloat(lower.replace(/[^\d.]/g, ""));
-  return Math.round(numberPart * multiplier);
+const client = new ApifyClient({
+    token: ENV.APIFY_API_TOKEN,
+});
+
+export const getInstagramDetails = async (targetUsername: string) => {
+    console.log(`Fetching data for @${targetUsername} via Apify...`);
+
+    // The configuration sent to Apify
+    const input = {
+        usernames: [targetUsername],
+        resultsLimit: 10, // <--- Change this number if you want more/less posts
+    };
+
+    try {
+        // Run the Apify actor (this bypasses all Instagram login walls)
+        const run = await client.actor("apify/instagram-profile-scraper").call(input);
+        const { items } = await client.dataset(run.defaultDatasetId).listItems();
+
+        if (!items || items.length === 0) {
+            console.log("No data found. Check the username.");
+            return null;
+        }
+
+        const profileData = items[0];
+        const recentPosts = profileData.latestPosts || [];
+        
+        // Safety check in case the user has fewer than 10 posts total
+        const postsToAnalyze = recentPosts.slice(0, 10);
+        const validCount = postsToAnalyze.length || 1;
+
+        // Calculate the averages based on the extracted data
+        const averageLikes = postsToAnalyze.reduce((sum: number, post: any) => sum + (post.likesCount || 0), 0) / validCount;
+        const averageComments = postsToAnalyze.reduce((sum: number, post: any) => sum + (post.commentsCount || 0), 0) / validCount;
+        const averageViews = postsToAnalyze.reduce((sum: number, post: any) => sum + (post.videoViewCount || 0), 0) / validCount;
+
+        return {
+            username: profileData.username,
+            followerCountNumber: profileData.followersCount || 0,
+            averageLikes: Math.round(averageLikes),
+            averageComments: Math.round(averageComments),
+            averageViews: Math.round(averageViews),
+            lastTenPostsAnalytics: postsToAnalyze.map((post: any) => ({
+                url: post.url,
+                likes: post.likesCount || 0,
+                comments: post.commentsCount || 0,
+                views: post.videoViewCount || 0,
+            }))
+        };
+
+    } catch (error) {
+        console.error("Scraping failed:", error);
+    }
 };
 
-export const getInstagramDetails = async (username: string) => {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-
-  await page.goto(`https://www.instagram.com/${username}/`, {
-    waitUntil: "networkidle2",
-  });
-
-  // Scrape profile info inside browser context
-  const { followerCount, postLinks } = await page.evaluate(() => {
-    const followerMeta = document.querySelector("meta[name='description']");
-    const followerCount = followerMeta
-      ? followerMeta.getAttribute("content") || ""
-      : "";
-
-    const postLinks = Array.from(
-      document.querySelectorAll("article a")
-    )
-      .slice(0, 10)
-      .map((a) => (a as HTMLAnchorElement).href);
-
-    return { followerCount, postLinks };
-  });
-
-  const followerCountNumber = followerCount
-    ? followerStringToNumber(followerCount.split(" ")[0])
-    : 0;
-
-  // Scrape posts one by one
-  const analytics: { likes: number; comments: number; views: number }[] = [];
-  for (const url of postLinks) {
-    await page.goto(url, { waitUntil: "networkidle2" });
-    const postData = await page.evaluate(() => {
-      const likesElement = document.querySelector("section span span");
-      const commentsElement = document.querySelector("ul li span");
-      const viewsElement = document.querySelector("video");
-
-      const likes = likesElement
-        ? parseInt(likesElement.textContent.replace(/,/g, ""))
-        : 0;
-      const comments = commentsElement
-        ? parseInt(commentsElement.textContent.replace(/,/g, ""))
-        : 0;
-      const views = viewsElement
-        ? parseInt(viewsElement.getAttribute("views") || "0")
-        : 0;
-
-      return { likes, comments, views };
-    });
-    analytics.push(postData);
-  }
-
-  await browser.close();
-
-  // Calculate averages
-  const averageLikes =
-    analytics.reduce((sum, post) => sum + post.likes, 0) / analytics.length;
-  const averageComments =
-    analytics.reduce((sum, post) => sum + post.comments, 0) / analytics.length;
-  const averageViews =
-    analytics.reduce((sum, post) => sum + post.views, 0) / analytics.length;
-
-  return {
-    followerCount,
-    followerCountNumber,
-    averageLikes,
-    averageComments,
-    averageViews,
-    lastTenPostsAnalytics: analytics,
-  };
-};
+// Execute the function
+(async () => {
+    // <--- Change the username inside the quotes to scrape someone else
+    const data = await getInstagramDetails("virat.kohli"); 
+    
+    console.dir(data, { depth: null }); // Prints the full result to your terminal
+})();
