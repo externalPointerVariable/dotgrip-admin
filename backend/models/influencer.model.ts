@@ -13,6 +13,7 @@ interface IInfluencer extends Document {
     averageShares?: number;
     followerCount?: number;
     followerCountString?: string;
+    lastTenPostsAnalytics?: JSON[];
     lastUpdated?: Date;
   } | null;
   contentRating: 1 | 2 | 3 | 4 | 5;
