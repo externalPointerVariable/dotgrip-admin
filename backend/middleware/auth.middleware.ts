@@ -14,7 +14,6 @@ const protect = async (req: express.Request, res: express.Response, next: expres
       return res.status(401).json({ message: "Unauthorized: User does not exist" });
     }
     if (decoded.role === "admin") {
-      console.log({message: "Admin access granted"});
       next();
     }
   } catch (error:any) {

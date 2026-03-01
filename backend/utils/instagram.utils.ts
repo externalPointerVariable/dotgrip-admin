@@ -24,7 +24,7 @@ export const getInstagramDetails = async (targetUsername: string) => {
             return null;
         }
 
-        const profileData = items[0];
+        const profileData: any = items[0];
         const recentPosts = profileData.latestPosts || [];
         
         // Safety check in case the user has fewer than 10 posts total
@@ -56,9 +56,9 @@ export const getInstagramDetails = async (targetUsername: string) => {
 };
 
 // Execute the function
-(async () => {
-    // <--- Change the username inside the quotes to scrape someone else
-    const data = await getInstagramDetails("virat.kohli"); 
+// (async () => {
+//     // <--- Change the username inside the quotes to scrape someone else
+//     const data = await getInstagramDetails("virat.kohli"); 
     
-    console.dir(data, { depth: null }); // Prints the full result to your terminal
-})();
+//     console.dir(data, { depth: null }); // Prints the full result to your terminal
+// })();
