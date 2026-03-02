@@ -3,30 +3,29 @@ import { Schema, model, Document } from "mongoose";
 interface IInfluencer extends Document {
   name?: string;
   instagramLink: string;
-  primeNiche?: string;
-  contentKeywords?: string[];
-  audienceCityTier?: string[];
+  primeNiche?: string | null;
+  contentKeywords?: string[] | null;
+  audienceCityTier?: string[] | null;
   instagram?: {
     averageLikes?: number;
     averageComments?: number;
     averageViews?: number;
-    averageShares?: number;
     followerCount?: number;
     followerCountString?: string;
-    lastTenPostsAnalytics?: JSON[];
+    lastTenPostsAnalytics?: [{}];
     lastUpdated?: Date;
   } | null;
-  contentRating: 1 | 2 | 3 | 4 | 5;
-  Gender: "male" | "female" | "other";
-  onboardDate: Date;
-  age?: number;
-  contact: [
+  contentRating?: 1 | 2 | 3 | 4 | 5 | null;
+  Gender?: "male" | "female" | "other" | null;
+  onboardDate?: Date;
+  age?: number | null;
+  contact?: [
     {
       type: "self" | "manager" | "agency";
       email?: string;
       phone?: string;
     },
-  ];
+  ] | null;
   address?: [
     {
       city?: string;
@@ -35,66 +34,65 @@ interface IInfluencer extends Document {
       zipCode?: string;
       region: "urban" | "rural";
     },
-  ];
-  plan: {
-    pricing: "lite" | "standard" | "premium";
-    renewalDate: Date;
-  };
+  ] | null;
+  plan?: {
+    pricing?: "lite" | "standard" | "premium";
+    renewalDate?: Date;
+  } | null;
   taskStatus: "pending" | "approved";
 }
 
 const InfluencerSchema = new Schema<IInfluencer>({
-  name: { type: String, required: true },
+  name: { type: String, default: null },
   instagramLink: { type: String, required: true },
-  primeNiche: { type: String, required: true },
-  contentKeywords: { type: [String], required: true },
-  audienceCityTier: { type: [String], required: true },
+  primeNiche: { type: String, default: null },
+  contentKeywords: { type: [String], default: null },
+  audienceCityTier: { type: [String], default: null },
   instagram: {
     type: new Schema(
       {
-        averageLikes: { type: Number },
-        averageComments: { type: Number },
-        averageViews: { type: Number },
-        averageShares: { type: Number },
-        followerCount: { type: Number },
-        followerCountString: { type: String },
-        lastUpdated: { type: Date },
+        averageLikes: { type: Number, default: 0 },
+        averageComments: { type: Number, default: 0 },
+        averageViews: { type: Number, default: 0 },
+        averageShares: { type: Number, default: 0 },
+        followerCount: { type: Number, default: 0 },
+        followerCountString: { type: String, default: "0" },
+        lastTenPostsAnalytics: [{type: Object}],
+        lastUpdated: { type: Date, default: null },
       },
       { _id: false },
     ),
     default: null,
   },
-  contentRating: { type: Number, enum: [1, 2, 3, 4, 5], required: true },
-  Gender: { type: String, enum: ["male", "female", "other"], required: true },
+  contentRating: { type: Number, enum: [1, 2, 3, 4, 5], default: null },
+  Gender: { type: String, enum: ["male", "female", "other"], default: null },
   onboardDate: { type: Date, default: Date.now },
-  age: { type: Number, required: true },
-  contact: [
-    {
-      type: {
-        type: String,
-        enum: ["self", "manager", "agency"],
-        required: true,
+  age: { type: Number, default: null },
+  contact: {
+    type: [
+      {
+        type: { type: String, enum: ["self", "manager", "agency"], default: null },
+        email: { type: String, default: null },
+        phone: { type: String, default: null },
       },
-      email: { type: String, required: true },
-      phone: { type: String, required: true },
-    },
-  ],
-  address: [
-    {
-      city: { type: String, required: true },
-      state: { type: String, required: true },
-      country: { type: String, required: true },
-      zipCode: { type: String, required: true },
-      region: { type: String, enum: ["urban", "rural"], required: true },
-    },
-  ],
+    ],
+    default: null,
+  },
+  address: {
+    type: [
+      {
+        city: { type: String, default: null },
+        state: { type: String, default: null },
+        country: { type: String, default: null },
+        zipCode: { type: String, default: null },
+        region: { type: String, enum: ["urban", "rural"], default: null },
+      },
+    ],
+    default: null,
+  },
   plan: {
-    pricing: {
-      type: String,
-      enum: ["lite", "standard", "premium"],
-      required: true,
-    },
-    renewalDate: { type: Date, required: true },
+    pricing: { type: String, enum: ["lite", "standard", "premium"], default: null },
+    renewalDate: { type: Date, default: null },
   },
   taskStatus: {
     type: String,

@@ -38,6 +38,7 @@ export const getInstagramDetails = async (targetUsername: string) => {
 
         return {
             username: profileData.username,
+            fullName: profileData.fullName,
             followerCountNumber: profileData.followersCount || 0,
             averageLikes: Math.round(averageLikes),
             averageComments: Math.round(averageComments),
@@ -58,7 +59,7 @@ export const getInstagramDetails = async (targetUsername: string) => {
 // Execute the function
 // (async () => {
 //     // <--- Change the username inside the quotes to scrape someone else
-//     const data = await getInstagramDetails("virat.kohli"); 
+//     const data = await getInstagramDetails("pxeeti"); 
     
 //     console.dir(data, { depth: null }); // Prints the full result to your terminal
 // })();
