@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/header/Header";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(
@@ -60,6 +61,7 @@ function App() {
         isCollapsed={isCollapsed}
         onActiveItemChange={storedActiveItem}
       />
+      <Toaster />
     </>
   );
 }
