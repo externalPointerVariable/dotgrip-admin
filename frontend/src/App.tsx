@@ -4,34 +4,45 @@ import Header from "./components/header/Header";
 
 function App() {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(
-    localStorage.getItem("sidebarCollapsed") === "true"
+    localStorage.getItem("sidebarCollapsed") === "true",
   );
-  
-  const [activeSidebarItem, setActiveSidebarItem] = useState<string>( "dashboard" );
-  
+
+  const [activeSidebarItem, setActiveSidebarItem] =
+    useState<string>("dashboard");
+
   const storedActiveItem = (currentSidebarItem: string) => {
     setActiveSidebarItem(currentSidebarItem);
-  }
-  
+  };
+
   const headerDetails = {
     dashboard: {
       heading: "Dashboard",
-      subheading: "Overview of your influencer network"},
+      subheading: "Overview of your influencer network",
+    },
+    influencers: {
+      heading: "Influencer Profile",
+      subheading: "Detailed insights into influencer performance",
+    },
     database: {
       heading: "Database",
-      subheading: "Manage your influencer database"},
+      subheading: "Manage your influencer database",
+    },
     tasks: {
       heading: "Pending Tasks",
-      subheading: "Review and approve new influencer submissions"},
+      subheading: "Review and approve new influencer submissions",
+    },
     inactive: {
       heading: "Inactive Profiles",
-      subheading: "Review inactive influencer profiles"},
+      subheading: "Review inactive influencer profiles",
+    },
     profile: {
       heading: "Profile",
-      subheading: "Manage your user profile settings"},
+      subheading: "Manage your user profile settings",
+    },
     settings: {
       heading: "Settings",
-      subheading: "Configure application settings"},
+      subheading: "Configure application settings",
+    },
   };
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
@@ -45,9 +56,10 @@ function App() {
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         isCollapsed={isCollapsed}
       />
-      <Sidebar isCollapsed={isCollapsed} 
+      <Sidebar
+        isCollapsed={isCollapsed}
         onActiveItemChange={storedActiveItem}
-        />
+      />
     </>
   );
 }

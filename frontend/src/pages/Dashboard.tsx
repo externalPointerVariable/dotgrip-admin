@@ -121,8 +121,8 @@ const Dashboard: React.FC = () => {
         </Card.Title>
         <Card.Body>
           <VStack align="stretch" gap={5}>
-            {topNiches.map((niche) => (
-              <Stat.Root>
+            {topNiches.map((niche, index) => (
+              <Stat.Root key={index}>
                 <Flex gap={2} align="center" justifyContent={"space-between"}>
                   <Stat.Label fontSize="lg">{niche.name}</Stat.Label>
                   <Stat.Label fontSize="lg">

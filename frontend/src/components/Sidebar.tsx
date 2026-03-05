@@ -26,6 +26,7 @@ import {
   Database,
   InactiveProfiles,
   PendingTasks,
+  InfluencerProfile,
 } from "@/pages";
 
 interface SidebarProps {
@@ -49,6 +50,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: "Dashboard",
       icon: LuLayoutDashboard,
       component: Dashboard,
+    },
+    {
+      id: "influencers",
+      label: "Influencer Profile",
+      icon: LuUserCheck,
+      component: InfluencerProfile,
     },
     {
       id: "database",
@@ -79,6 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // Find the active menu item
   const activeMenu = menuItems.find((item) => item.id === activeItem);
+  const ActiveComponent = activeMenu?.component;
 
   return (
     <Flex>
@@ -157,7 +165,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ml={isCollapsed ? "80px" : "250px"}
         p={6}
       >
-        {activeMenu && <activeMenu.component />}
+        {ActiveComponent && <ActiveComponent />}
       </Box>
     </Flex>
   );
