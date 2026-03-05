@@ -4,6 +4,7 @@ import Settings from "./Settings";
 import Database from "./Database";
 import InactiveProfiles from "./InactiveProfiles";
 import PendingTasks from "./PendingTasks";
+import InfluencerProfile from "./InfluencerProfile";
 
 export {
   Dashboard,
@@ -11,5 +12,6 @@ export {
   Settings,
   Database,
   InactiveProfiles,
-  PendingTasks
+  PendingTasks,
+  InfluencerProfile,
 };
