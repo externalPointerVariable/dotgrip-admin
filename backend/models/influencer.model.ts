@@ -19,22 +19,26 @@ interface IInfluencer extends Document {
   Gender?: "male" | "female" | "other" | null;
   onboardDate?: Date;
   age?: number | null;
-  contact?: [
-    {
-      type: "self" | "manager" | "agency";
-      email?: string;
-      phone?: string;
-    },
-  ] | null;
-  address?: [
-    {
-      city?: string;
-      state?: string;
-      country?: string;
-      zipCode?: string;
-      region: "urban" | "rural";
-    },
-  ] | null;
+  contact?:
+    | [
+        {
+          type: "self" | "manager" | "agency";
+          email?: string;
+          phone?: string;
+        },
+      ]
+    | null;
+  address?:
+    | [
+        {
+          city?: string;
+          state?: string;
+          country?: string;
+          zipCode?: string;
+          region: "urban" | "rural";
+        },
+      ]
+    | null;
   plan?: {
     pricing?: "lite" | "standard" | "premium";
     renewalDate?: Date;
@@ -57,7 +61,7 @@ const InfluencerSchema = new Schema<IInfluencer>({
         averageShares: { type: Number, default: 0 },
         followerCount: { type: Number, default: 0 },
         followerCountString: { type: String, default: "0" },
-        lastTenPostsAnalytics: [{type: Object}],
+        lastTenPostsAnalytics: [{ type: Object }],
         lastUpdated: { type: Date, default: null },
       },
       { _id: false },
@@ -71,7 +75,11 @@ const InfluencerSchema = new Schema<IInfluencer>({
   contact: {
     type: [
       {
-        type: { type: String, enum: ["self", "manager", "agency"], default: null },
+        type: {
+          type: String,
+          enum: ["self", "manager", "agency"],
+          default: null,
+        },
         email: { type: String, default: null },
         phone: { type: String, default: null },
       },
@@ -91,7 +99,11 @@ const InfluencerSchema = new Schema<IInfluencer>({
     default: null,
   },
   plan: {
-    pricing: { type: String, enum: ["lite", "standard", "premium"], default: null },
+    pricing: {
+      type: String,
+      enum: ["lite", "standard", "premium"],
+      default: null,
+    },
     renewalDate: { type: Date, default: null },
   },
   taskStatus: {
