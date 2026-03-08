@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -52,7 +52,8 @@ const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
     taskStatus: "pending",
   });
 
-  console.log("id here:", influencerId);
+  const [token, setToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (field: keyof InfluencerFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -115,17 +116,54 @@ const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
     setFormData((prev) => ({ ...prev, plan }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
-    toaster.create({
-      title: "Form Submitted",
-      description: "Influencer data has been submitted successfully.",
-      type: "success",
-      duration: 5000,
-      closable: true,
-    });
+    formData.taskStatus = "approved";
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/influencers/${influencerId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update influencer");
+      }
+
+      toaster.create({
+        title: "Success",
+        description: "Influencer updated successfully",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Failed to submit form:", error);
+    }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    setToken(token);
+  }, []);
+
+  if (error) {
+    return (
+      <Box p={6} color="red.500">
+        {error}
+      </Box>
+    );
+  }
 
   return (
     <Box p={6} maxW="800px" mx="auto">
@@ -281,20 +319,6 @@ const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
                   <NumberInput.DecrementTrigger />
                 </NumberInput.Control>
               </NumberInput.Root>
-
-              <label>Task Status</label>
-              <select
-                value={formData.taskStatus}
-                onChange={(e) =>
-                  handleInputChange(
-                    "taskStatus",
-                    e.target.value as "pending" | "approved",
-                  )
-                }
-              >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-              </select>
             </VStack>
           </Box>
 
