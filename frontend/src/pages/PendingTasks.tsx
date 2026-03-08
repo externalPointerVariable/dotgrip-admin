@@ -1,4 +1,12 @@
-import { Button, Center, Icon, Table, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Icon,
+  Spacer,
+  Table,
+  Text,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
   createColumnHelper,
@@ -9,6 +17,8 @@ import {
 } from "@tanstack/react-table";
 import { IoMdOpen } from "react-icons/io";
 import InfluencerForm from "@/components/InfluencerForm";
+import { LuSheet } from "react-icons/lu";
+import { FileUpload } from "@/components/FileUpload";
 
 interface influencers {
   instagramLink: string;
@@ -24,6 +34,7 @@ export default function PendingTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [approvalForm, setApprovalForm] = useState<{ id: string } | null>(null);
+  const [uploadFile, setUploadFile] = useState<boolean>(false);
 
   const fetchPendingTasks = async (token: string) => {
     try {
@@ -59,6 +70,7 @@ export default function PendingTasks() {
   const columns = [
     columnHelper.accessor("instagramLink", {
       header: "Instagram Link",
+      enableSorting: true,
       cell: (info) => (
         <Text>
           {info.getValue() + " "}
@@ -70,10 +82,12 @@ export default function PendingTasks() {
     }),
     columnHelper.accessor("instagram.averageLikes", {
       header: "Average Likes",
+      enableSorting: true,
       cell: (info) => <Text>{info.getValue()}</Text>,
     }),
     columnHelper.accessor("instagram.followerCount", {
       header: "Follower Count",
+      enableSorting: true,
       cell: (info) => <Text>{info.getValue()}</Text>,
     }),
     columnHelper.display({
@@ -103,6 +117,10 @@ export default function PendingTasks() {
     getSortedRowModel: getSortedRowModel(),
   });
 
+  const handleCloseFileUpload = () => {
+    setUploadFile(false);
+  };
+
   if (approvalForm) {
     return <InfluencerForm influencerId={approvalForm.id} />;
   }
@@ -113,42 +131,86 @@ export default function PendingTasks() {
     return <Text>Error: {error}</Text>;
   }
 
+  if (uploadFile) {
+    return <FileUpload closeDialog={handleCloseFileUpload} />;
+  }
+
   return (
-    <Center>
-      <Table.Root
-        p={20}
-        showColumnBorder={true}
-        variant="outline"
-        textAlign={"left"}
+    <Box>
+      <Button
+        marginEnd={"auto"}
+        variant={"ghost"}
+        border={"ActiveBorder"}
+        _hover={{ bg: "cyan.600" }}
+        onClick={() => setUploadFile(true)}
       >
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </Table.Root>
-    </Center>
+        <Icon as={LuSheet} mr={2} />
+        Import
+      </Button>
+      <Center>
+        <Table.Root
+          p={20}
+          showColumnBorder={true}
+          variant="outline"
+          textAlign={"left"}
+        >
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {header.isPlaceholder ? null : (
+                      <Box
+                        as="button"
+                        onClick={header.column.getToggleSortingHandler()}
+                        cursor={
+                          header.column.getCanSort() ? "pointer" : "default"
+                        }
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        w="full"
+                        p={2}
+                        bg="transparent"
+                        border="none"
+                        _hover={{
+                          bg: header.column.getCanSort()
+                            ? "gray.100"
+                            : "transparent",
+                        }}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                        {header.column.getCanSort() && (
+                          <Text ml={2}>
+                            {{
+                              asc: "↑",
+                              desc: "↓",
+                            }[header.column.getIsSorted() as string] ?? "↕"}
+                          </Text>
+                        )}
+                      </Box>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table.Root>
+      </Center>
+    </Box>
   );
 }
