@@ -1,26 +1,38 @@
-import {
-  Flex,
-  Box,
-  Text,
-  Input,
-  Button,
-  VStack,
-  Icon,
-} from "@chakra-ui/react";
+import { Flex, Box, Text, Input, Button, VStack, Icon } from "@chakra-ui/react";
 import { LuUser, LuEye, LuEyeOff } from "react-icons/lu";
 import { useState } from "react";
 
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC<{
+  routeAfterLogin: (loginState: boolean) => void;
+}> = ({ routeAfterLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = () => {
+    fetch("http://localhost:8000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ usernameOrEmail: email, password }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Login successful:", data);
+        localStorage.setItem("token", data.token);
+      })
+      .then(() => {
+        routeAfterLogin(true);
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+        routeAfterLogin(false);
+      });
+  };
 
   return (
-    <Flex
-      h="100vh"
-      align="center"
-      justify="center"
-      bg="gray.900"
-      color="white"
-    >
+    <Flex h="100vh" align="center" justify="center" bg="gray.900" color="white">
       <Box
         bg="gray.800"
         p={8}
@@ -48,6 +60,8 @@ const LoginPage: React.FC = () => {
             bg="gray.700"
             border="none"
             _placeholder={{ color: "gray.400" }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           {/* Password with toggle (Flex workaround + Button child icon) */}
@@ -64,6 +78,8 @@ const LoginPage: React.FC = () => {
               border="none"
               _placeholder={{ color: "gray.400" }}
               flex="1"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <Button
               aria-label={showPassword ? "Hide password" : "Show password"}
@@ -76,7 +92,7 @@ const LoginPage: React.FC = () => {
             </Button>
           </Flex>
 
-          <Button colorScheme="teal" w="full">
+          <Button colorScheme="teal" w="full" onClick={() => handleLogin()}>
             Sign in
           </Button>
         </VStack>

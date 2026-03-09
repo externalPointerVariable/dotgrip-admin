@@ -1,12 +1,20 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/header/Header";
-import { Toaster } from "./components/ui/toaster";
+import LoginPage from "./pages/Login";
 
 function App() {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(
     localStorage.getItem("sidebarCollapsed") === "true",
   );
+
+  const [loggedIn, setLoggedIn] = useState<boolean>(
+    localStorage.getItem("token") !== null,
+  );
+
+  const routeAfterLogin = (loginState: boolean) => {
+    setLoggedIn(loginState);
+  };
 
   const [activeSidebarItem, setActiveSidebarItem] =
     useState<string>("dashboard");
@@ -49,6 +57,10 @@ function App() {
     localStorage.setItem("sidebarCollapsed", isCollapsed.toString());
   }, [isCollapsed]);
 
+  if (loggedIn === false) {
+    return <LoginPage routeAfterLogin={routeAfterLogin} />;
+  }
+
   return (
     <>
       <Header
@@ -58,6 +70,7 @@ function App() {
         isCollapsed={isCollapsed}
       />
       <Sidebar
+        routeAfterLogin={routeAfterLogin}
         isCollapsed={isCollapsed}
         onActiveItemChange={storedActiveItem}
       />
