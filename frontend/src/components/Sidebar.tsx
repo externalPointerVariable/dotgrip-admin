@@ -32,16 +32,23 @@ import {
 interface SidebarProps {
   isCollapsed: boolean;
   onActiveItemChange: (item: string) => void;
+  routeAfterLogin: (isLoggedIn: boolean) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   onActiveItemChange,
+  routeAfterLogin,
 }) => {
   const [activeItem, setActiveItem] = useState<string>("dashboard");
   useEffect(() => {
     onActiveItemChange(activeItem);
   }, [activeItem]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    routeAfterLogin(false);
+  };
 
   // Menu items now include the component reference
   const menuItems = [
@@ -147,6 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <Button
             justifyContent={isCollapsed ? "center" : "flex-start"}
             variant="ghost"
+            onClick={handleLogout}
             _hover={{ bg: "gray.700" }}
             w="full"
             color="white"
