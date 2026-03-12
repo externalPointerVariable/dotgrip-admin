@@ -16,8 +16,8 @@ import {
 } from "react-icons/tb";
 
 interface HeaderProps {
-  heading: string;
-  subheading: string;
+  heading: any;
+  subheading: any;
   onToggleCollapse: () => void;
   isCollapsed: boolean;
 }
