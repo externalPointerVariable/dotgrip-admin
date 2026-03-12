@@ -23,6 +23,7 @@
     "mongoose": "^9.1.5",
     "multer": "^2.1.0",
     "nodemon": "^3.1.11",
+    "react-router-dom": "^7.13.1",
     "xlsx": "^0.18.5"
   }
 }
