@@ -19,18 +19,10 @@ import { IoMdOpen } from "react-icons/io";
 import InfluencerForm from "@/components/InfluencerForm";
 import { LuSheet } from "react-icons/lu";
 import { FileUpload } from "@/components/FileUpload";
-
-interface influencers {
-  instagramLink: string;
-  _id: string;
-  instagram: {
-    averageLikes: number;
-    followerCount: number;
-  };
-}
+import type { Influencer } from "@/types/influencer";
 
 export default function PendingTasks() {
-  const [pendingTasks, setPendingTasks] = useState<influencers[]>([]);
+  const [pendingTasks, setPendingTasks] = useState<Influencer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [approvalForm, setApprovalForm] = useState<{ id: string } | null>(null);

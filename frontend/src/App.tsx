@@ -9,7 +9,8 @@ function App() {
   );
 
   const [loggedIn, setLoggedIn] = useState<boolean>(
-    localStorage.getItem("token") !== null,
+    localStorage.getItem("token") !== null &&
+      localStorage.getItem("token") !== undefined,
   );
 
   const routeAfterLogin = (loginState: boolean) => {
@@ -74,7 +75,6 @@ function App() {
         isCollapsed={isCollapsed}
         onActiveItemChange={storedActiveItem}
       />
-      <Toaster />
     </>
   );
 }

@@ -19,6 +19,9 @@ const LoginPage: React.FC<{
     })
       .then((response) => response.json())
       .then((data) => {
+        if (data.token == null || data.token == undefined) {
+          throw new Error("Invalid login response: " + JSON.stringify(data));
+        }
         console.log("Login successful:", data);
         localStorage.setItem("token", data.token);
       })

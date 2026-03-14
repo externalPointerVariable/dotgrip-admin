@@ -9,36 +9,20 @@ import {
   Text,
   Table,
   Checkbox,
+  Tabs,
 } from "@chakra-ui/react";
 import { LuDownload, LuSearch } from "react-icons/lu";
-import { IoMdOpen } from "react-icons/io";
 import { useState, useEffect } from "react";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
 import MenuItem from "@/components/MenuItem";
-
-interface influencers {
-  instagramLink: string;
-  _id: string;
-  name?: string;
-  instagram: {
-    averageLikes: number;
-    followerCount: number;
-  };
-  taskStatus: string;
-}
+import DatabaseTable from "@/components/DatabaseTable";
+import CardsView from "@/components/CardsView";
+import type { Influencer } from "@/types/influencer";
 
 function Database() {
   const [nicheActive, setNicheActive] = useState<boolean>(false);
-  const [influencers, setInfluencers] = useState<influencers[]>([]);
+  const [influencers, setInfluencers] = useState<Influencer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const items = [{ value: "1", label: "Fashion" }];
 
@@ -74,90 +58,19 @@ function Database() {
     fetchInfluencers(token);
   }, []);
 
-  const filteredInfluencers = influencers.filter((influencer) => {
-    const searchLower = searchQuery.toLowerCase();
-    const matchesName = influencer.name
-      ? influencer.name.toLowerCase().includes(searchLower)
-      : false;
-    const matchesInstagram = influencer.instagramLink
-      .toLowerCase()
-      .includes(searchLower);
-    return matchesName || matchesInstagram;
-  });
-
-  const columnHelper = createColumnHelper<influencers>();
-
-  const columns = [
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox.Root
-          checked={table.getIsAllRowsSelected()}
-          onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox.Root
-          checked={row.getIsSelected()}
-          onCheckedChange={row.getToggleSelectedHandler()}
-        />
-      ),
-      enableSorting: false,
-    }),
-    columnHelper.accessor("name", {
-      header: "Name",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue() || "Anonymous"}</Text>,
-    }),
-    columnHelper.accessor("instagramLink", {
-      header: "Instagram Link",
-      enableSorting: true,
-      cell: (info) => (
-        <Text>
-          {info.getValue() + " "}
-          <a href={info.getValue()} target="_blank" rel="noopener noreferrer">
-            <Icon as={IoMdOpen} boxSize={3} />
-          </a>
-        </Text>
-      ),
-    }),
-    columnHelper.accessor("instagram.averageLikes", {
-      header: "Average Likes",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("instagram.followerCount", {
-      header: "Follower Count",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.display({
-      id: "status",
-      header: "Status",
-      cell: () => <Text>Approved</Text>,
-    }),
-  ];
-
-  const table = useReactTable({
-    data: filteredInfluencers,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    enableRowSelection: true,
-    onRowSelectionChange: (updater) => {
-      const newSelection =
-        typeof updater === "function"
-          ? updater(table.getState().rowSelection)
-          : updater;
-      setSelectedRows(Object.keys(newSelection));
-    },
-    state: {
-      rowSelection: selectedRows.reduce(
-        (acc, id) => ({ ...acc, [id]: true }),
-        {},
-      ),
-    },
-  });
+  const filteredInfluencers =
+    typeof influencers === "object" && influencers.length > 0
+      ? influencers.filter((influencer) => {
+          const searchLower = searchQuery.toLowerCase();
+          const matchesName = influencer.name
+            ? influencer.name.toLowerCase().includes(searchLower)
+            : false;
+          const matchesInstagram = influencer.instagramLink
+            .toLowerCase()
+            .includes(searchLower);
+          return matchesName || matchesInstagram;
+        })
+      : [];
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -172,8 +85,6 @@ function Database() {
           <Icon as={LuDownload} mr={2} />
           Export
         </Button>
-      </Flex>
-      <Flex gap={4} justifyContent={"space-between"} marginTop={"15px"}>
         <InputGroup
           startElement={<LuSearch />}
           marginEnd={"auto"}
@@ -193,69 +104,29 @@ function Database() {
           setActive={setNicheActive}
         />
       </Flex>
-      <Center>
-        <Table.Root
-          p={20}
-          showColumnBorder={true}
-          variant="outline"
-          textAlign={"left"}
+      <Center w="100%" p={4} marginTop={4}>
+        <Tabs.Root
+          w="100%"
+          defaultValue="table"
+          variant="plain"
+          css={{
+            "--tabs-indicator-bg": "colors.gray.subtle",
+            "--tabs-indicator-shadow": "shadows.xs",
+            "--tabs-trigger-radius": "radii.full",
+          }}
         >
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <Box
-                        as="button"
-                        onClick={header.column.getToggleSortingHandler()}
-                        cursor={
-                          header.column.getCanSort() ? "pointer" : "default"
-                        }
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        w="full"
-                        p={2}
-                        bg="transparent"
-                        border="none"
-                        _hover={{
-                          bg: header.column.getCanSort()
-                            ? "gray.100"
-                            : "transparent",
-                        }}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                        {header.column.getCanSort() && (
-                          <Text ml={2}>
-                            {{
-                              asc: "↑",
-                              desc: "↓",
-                            }[header.column.getIsSorted() as string] ?? "↕"}
-                          </Text>
-                        )}
-                      </Box>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </Table.Root>
+          <Tabs.List>
+            <Tabs.Trigger value="table">Table</Tabs.Trigger>
+            <Tabs.Trigger value="card">Cards</Tabs.Trigger>
+            <Tabs.Indicator />
+          </Tabs.List>
+          <Tabs.Content value="table">
+            <DatabaseTable filteredInfluencers={filteredInfluencers} />
+          </Tabs.Content>
+          <Tabs.Content value="card">
+            <CardsView filteredInfluencers={filteredInfluencers} />
+          </Tabs.Content>
+        </Tabs.Root>
       </Center>
     </>
   );
