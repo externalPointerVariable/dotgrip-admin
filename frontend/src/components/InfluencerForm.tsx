@@ -47,7 +47,17 @@ interface InfluencerFormData {
   taskStatus: "pending" | "approved";
 }
 
-const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
+interface InfluencerFormProps {
+  influencerId: string;
+  title?: string;
+  onClose?: () => void;
+}
+
+const InfluencerForm = ({
+  influencerId,
+  title = "Influencer Form",
+  onClose,
+}: InfluencerFormProps) => {
   const [formData, setFormData] = useState<InfluencerFormData>({
     taskStatus: "pending",
   });
@@ -136,6 +146,8 @@ const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
         throw new Error("Failed to update influencer");
       }
 
+      onClose?.();
+
       toaster.create({
         title: "Success",
         description: "Influencer updated successfully",
@@ -166,8 +178,12 @@ const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
   }
 
   return (
-    <Box p={6} maxW="800px" mx="auto">
-      <Heading mb={6}>Influencer Form</Heading>
+    <Box p={6} w="full" h="full" overflowY="auto">
+      {(title || onClose) && (
+        <HStack justify="space-between" mb={6}>
+          {title && <Heading size="lg">{title}</Heading>}
+        </HStack>
+      )}
       <form onSubmit={handleSubmit}>
         <VStack align="stretch">
           {/* Basic Information */}
@@ -491,9 +507,22 @@ const InfluencerForm = ({ influencerId }: { influencerId: string }) => {
             </VStack>
           </Box>
 
-          <Button type="submit" colorScheme="teal" size="lg" w="full">
-            Submit
-          </Button>
+          <HStack mt={2}>
+            {onClose && (
+              <Button variant="outline" flex={1} onClick={onClose}>
+                Cancel
+              </Button>
+            )}
+            <Button
+              type="submit"
+              colorScheme="teal"
+              size="lg"
+              flex={1}
+              w={onClose ? undefined : "full"}
+            >
+              Save Changes
+            </Button>
+          </HStack>
         </VStack>
       </form>
     </Box>

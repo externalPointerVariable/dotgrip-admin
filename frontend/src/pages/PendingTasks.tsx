@@ -2,8 +2,10 @@ import {
   Box,
   Button,
   Center,
+  CloseButton,
+  Drawer,
   Icon,
-  Spacer,
+  Portal,
   Table,
   Text,
 } from "@chakra-ui/react";
@@ -57,7 +59,7 @@ export default function PendingTasks() {
     fetchPendingTasks(token);
   }, []);
 
-  const columnHelper = createColumnHelper<influencers>();
+  const columnHelper = createColumnHelper<Influencer>();
 
   const columns = [
     columnHelper.accessor("instagramLink", {
@@ -113,9 +115,9 @@ export default function PendingTasks() {
     setUploadFile(false);
   };
 
-  if (approvalForm) {
-    return <InfluencerForm influencerId={approvalForm.id} />;
-  }
+  const handleCloseForm = () => {
+    setApprovalForm(null);
+  };
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -203,6 +205,37 @@ export default function PendingTasks() {
           </tbody>
         </Table.Root>
       </Center>
+
+      <Drawer.Root
+        open={!!approvalForm}
+        onOpenChange={(open) => {
+          if (open) handleCloseForm();
+        }}
+      >
+        <Portal>
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content>
+              <Drawer.Header>
+                <Drawer.Title>Edit Influencer Profile</Drawer.Title>
+                <Drawer.CloseTrigger asChild>
+                  <CloseButton size="sm" />
+                </Drawer.CloseTrigger>
+              </Drawer.Header>
+
+              <Drawer.Body p={0}>
+                {approvalForm && (
+                  <InfluencerForm
+                    influencerId={approvalForm.id}
+                    title=""
+                    onClose={handleCloseForm}
+                  />
+                )}
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
     </Box>
   );
 }
