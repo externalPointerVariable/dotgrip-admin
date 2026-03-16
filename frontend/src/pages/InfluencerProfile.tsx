@@ -1,144 +1,286 @@
-import React from "react";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Icon,
+  Link,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import {
+  LuArrowLeft,
+  LuMail,
+  LuPhone,
+  LuMapPin,
+  LuUsers,
+  LuPencil,
+} from "react-icons/lu";
+import { FaStar } from "react-icons/fa";
+import type { Influencer } from "@/types/influencer";
 
-const dummyInfluencer = {
-  name: "Jane Doe",
-  instagramLink: "https://instagram.com/janedoe",
-  primeNiche: "Fashion",
-  contentKeywords: ["style", "outfit", "trends"],
-  audienceCityTier: ["Tier 1", "Tier 2"],
-  instagram: {
-    averageLikes: 1200,
-    averageComments: 150,
-    averageViews: 5000,
-    averageShares: 50,
-    followerCount: 25000,
-    followerCountString: "25K",
-    lastTenPostsAnalytics: [
-      { likes: 1000, comments: 120 },
-      { likes: 1300, comments: 180 },
-    ],
-    lastUpdated: "2026-03-01",
-  },
-  contentRating: 4,
-  Gender: "female",
-  onboardDate: "2025-12-01",
-  age: 27,
-  contact: [
-    { type: "self", email: "jane@example.com", phone: "+1234567890" },
-    { type: "manager", email: "manager@example.com", phone: "+0987654321" },
-  ],
-  address: [
-    {
-      city: "Mumbai",
-      state: "MH",
-      country: "India",
-      zipCode: "400001",
-      region: "urban",
-    },
-  ],
-  plan: {
-    pricing: "premium",
-    renewalDate: "2026-12-01",
-  },
-  taskStatus: "approved",
+const formatDate = (value?: string | Date | null) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
 };
 
-const InfluencerProfile = () => {
+const formatNumber = (value?: number) => {
+  if (typeof value !== "number") return "-";
+  return value.toLocaleString(undefined, { maximumFractionDigits: 1 });
+};
+
+const getEngagementRate = (inf: Influencer) => {
+  const likes = inf.instagram?.averageLikes ?? 0;
+  const comments = inf.instagram?.averageComments ?? 0;
+  const followers = inf.instagram?.followerCount ?? 0;
+  if (!followers) return 0;
+  return ((likes + comments) / followers) * 100;
+};
+
+const InfluencerProfile = ({
+  dummyInfluencer,
+  unsetSelectedInfluencer,
+}: {
+  dummyInfluencer: Influencer;
+  unsetSelectedInfluencer: () => void;
+}) => {
   const inf = dummyInfluencer;
+  const engagementRate = getEngagementRate(inf);
+  const selfContact = inf.contact?.find((c) => c.type === "self");
+  const managerContact = inf.contact?.find((c) => c.type === "manager");
+  const location = inf.address?.[0];
+  const handle =
+    inf.instagramLink?.split("/").filter(Boolean).slice(-1)[0] ?? "";
+  const badgeColor = inf.taskStatus === "approved" ? "green" : "orange";
+
   return (
-    <div
-      style={{
-        maxWidth: 600,
-        margin: "2rem auto",
-        padding: "2rem",
-        border: "1px solid #eee",
-        borderRadius: 8,
-      }}
-    >
-      <h2>Influencer Profile</h2>
-      <div>
-        <strong>Name:</strong> {inf.name}
-      </div>
-      <div>
-        <strong>Instagram Link:</strong>{" "}
-        <a href={inf.instagramLink} target="_blank" rel="noopener noreferrer">
-          {inf.instagramLink}
-        </a>
-      </div>
-      <div>
-        <strong>Prime Niche:</strong> {inf.primeNiche}
-      </div>
-      <div>
-        <strong>Content Keywords:</strong> {inf.contentKeywords?.join(", ")}
-      </div>
-      <div>
-        <strong>Audience City Tier:</strong> {inf.audienceCityTier?.join(", ")}
-      </div>
-      <div>
-        <strong>Instagram Analytics:</strong>
-        <ul>
-          <li>Average Likes: {inf.instagram?.averageLikes}</li>
-          <li>Average Comments: {inf.instagram?.averageComments}</li>
-          <li>Average Views: {inf.instagram?.averageViews}</li>
-          <li>Average Shares: {inf.instagram?.averageShares}</li>
-          <li>
-            Follower Count: {inf.instagram?.followerCountString} (
-            {inf.instagram?.followerCount})
-          </li>
-          <li>Last Updated: {inf.instagram?.lastUpdated?.toString()}</li>
-          <li>
-            Last Ten Posts Analytics:
-            <ul>
-              {inf.instagram?.lastTenPostsAnalytics?.map((post, idx) => (
-                <li key={idx}>
-                  Post {idx + 1}: Likes: {post.likes ?? "-"}, Comments:{" "}
-                  {post.comments ?? "-"}
-                </li>
-              ))}
-            </ul>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <strong>Content Rating:</strong> {inf.contentRating}
-      </div>
-      <div>
-        <strong>Gender:</strong> {inf.Gender}
-      </div>
-      <div>
-        <strong>Onboard Date:</strong> {inf.onboardDate?.toString()}
-      </div>
-      <div>
-        <strong>Age:</strong> {inf.age}
-      </div>
-      <div>
-        <strong>Contact:</strong>
-        <ul>
-          {inf.contact?.map((c, idx) => (
-            <li key={idx}>
-              {c.type}: {c.email} / {c.phone}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <strong>Address:</strong>
-        <ul>
-          {inf.address?.map((a, idx) => (
-            <li key={idx}>
-              {a.city}, {a.state}, {a.country}, {a.zipCode} ({a.region})
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        <strong>Plan:</strong> {inf.plan?.pricing} (Renewal:{" "}
-        {inf.plan?.renewalDate?.toString()})
-      </div>
-      <div>
-        <strong>Task Status:</strong> {inf.taskStatus}
-      </div>
-    </div>
+    <Box maxW="1200px">
+      <Button variant="ghost" size="sm" onClick={unsetSelectedInfluencer}>
+        <LuArrowLeft />
+        Back to Database
+      </Button>
+
+      <Stack>
+        {/* Header Card */}
+        <Flex
+          borderRadius="lg"
+          bg={"gray.700"}
+          boxShadow="sm"
+          justify="space-between"
+          align="flex-start"
+          flexDir={{ base: "column", md: "row" }}
+        >
+          <Flex flex={1} minW={0}>
+            <Avatar.Root size="xl" key="xl">
+              <Avatar.Fallback name={inf.name ?? ""} />
+              <Avatar.Image src={undefined} alt={inf.name ?? "Avatar"} />
+            </Avatar.Root>
+
+            <Box flex={1} minW={0}>
+              <Heading size="md">{inf.name}</Heading>
+              <Stack>
+                <Link
+                  href={inf.instagramLink}
+                  color="cyan.600"
+                  fontWeight="medium"
+                >
+                  @{handle}
+                </Link>
+                <Stack direction="row">
+                  <Badge colorScheme={badgeColor} variant="subtle">
+                    {inf.taskStatus === "approved" ? "Active" : "Pending"}
+                  </Badge>
+                  <Badge colorScheme="green" variant="subtle">
+                    {inf.taskStatus === "approved" ? "Approved" : "Review"}
+                  </Badge>
+                  {inf.audienceCityTier?.map((tier) => (
+                    <Badge key={tier} colorScheme="purple" variant="subtle">
+                      {tier}
+                    </Badge>
+                  ))}
+                </Stack>
+              </Stack>
+
+              <Stack direction="row">
+                {inf.primeNiche && (
+                  <Badge colorScheme="cyan" variant="outline">
+                    {inf.primeNiche}
+                  </Badge>
+                )}
+                {inf.contentKeywords?.map((kw) => (
+                  <Badge key={kw} colorScheme="gray" variant="outline">
+                    {kw}
+                  </Badge>
+                ))}
+              </Stack>
+
+              <Stack direction="row">
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Followers
+                  </Text>
+                  <Text fontSize="lg" fontWeight="semibold">
+                    {inf.instagram?.followerCountString ??
+                      formatNumber(inf.instagram?.followerCount)}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Rating
+                  </Text>
+                  <Stack direction="row">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                      <Icon
+                        key={idx}
+                        as={FaStar}
+                        color={
+                          idx < (inf.contentRating ?? 0)
+                            ? "yellow.400"
+                            : "gray.200"
+                        }
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+
+                <Box>
+                  <Text fontSize="sm" color="gray.500">
+                    Engagement
+                  </Text>
+                  <Text fontSize="lg" fontWeight="semibold">
+                    {engagementRate.toFixed(2)}%
+                  </Text>
+                </Box>
+              </Stack>
+            </Box>
+          </Flex>
+
+          <Button colorScheme="teal">
+            <LuPencil />
+            Edit Profile
+          </Button>
+        </Flex>
+
+        {/* Stats Cards */}
+        <SimpleGrid columns={{ base: 1, md: 4 }}>
+          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
+            <Text fontSize="sm" color="gray.500">
+              Avg Views
+            </Text>
+            <Text fontSize="2xl" fontWeight="bold">
+              {formatNumber(inf.instagram?.averageViews)}
+            </Text>
+          </Box>
+          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
+            <Text fontSize="sm" color="gray.500">
+              Avg Likes
+            </Text>
+            <Text fontSize="2xl" fontWeight="bold">
+              {formatNumber(inf.instagram?.averageLikes)}
+            </Text>
+          </Box>
+          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
+            <Text fontSize="sm" color="gray.500">
+              Avg Comments
+            </Text>
+            <Text fontSize="2xl" fontWeight="bold">
+              {formatNumber(inf.instagram?.averageComments)}
+            </Text>
+          </Box>
+          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
+            <Text fontSize="sm" color="gray.500">
+              Avg Shares
+            </Text>
+            <Text fontSize="2xl" fontWeight="bold">
+              {formatNumber(inf.instagram?.averageShares)}
+            </Text>
+          </Box>
+        </SimpleGrid>
+
+        <SimpleGrid columns={{ base: 1, md: 2 }}>
+          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
+            <Heading size="sm">Contact</Heading>
+            <Stack>
+              <Stack direction="row">
+                <Icon as={LuMail} color="gray.500" />
+                <Text fontWeight="medium">{selfContact?.email ?? "-"}</Text>
+              </Stack>
+              <Stack direction="row">
+                <Icon as={LuPhone} color="gray.500" />
+                <Text fontWeight="medium">{selfContact?.phone ?? "-"}</Text>
+              </Stack>
+              <Stack direction="row">
+                <Icon as={LuMail} color="gray.500" />
+                <Text fontWeight="medium">{managerContact?.email ?? "-"}</Text>
+              </Stack>
+              <Stack direction="row">
+                <Icon as={LuPhone} color="gray.500" />
+                <Text fontWeight="medium">{managerContact?.phone ?? "-"}</Text>
+              </Stack>
+            </Stack>
+          </Box>
+
+          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
+            <Heading size="sm">Profile Details</Heading>
+            <Stack>
+              <Stack direction="row" align="start">
+                <Icon as={LuMapPin} color="gray.500" />
+                <Box>
+                  <Text fontWeight="medium">Location</Text>
+                  <Text color="gray.500">
+                    {location
+                      ? `${location.city}, ${location.state}, ${location.country} ${location.zipCode} (${location.region})`
+                      : "-"}
+                  </Text>
+                </Box>
+              </Stack>
+              <Stack direction="row" align="start">
+                <Icon as={LuUsers} color="gray.500" />
+                <Box>
+                  <Text fontWeight="medium">Manager</Text>
+                  <Text color="gray.500">{managerContact?.email ?? "-"}</Text>
+                </Box>
+              </Stack>
+              <Stack direction="row">
+                <Text fontWeight="medium" minW="120px">
+                  Gender
+                </Text>
+                <Text color="gray.500">{inf.Gender ?? "-"}</Text>
+              </Stack>
+              <Stack direction="row">
+                <Text fontWeight="medium" minW="120px">
+                  Age
+                </Text>
+                <Text color="gray.500">{inf.age ?? "-"} yrs</Text>
+              </Stack>
+              <Stack direction="row">
+                <Text fontWeight="medium" minW="120px">
+                  Onboarded
+                </Text>
+                <Text color="gray.500">{formatDate(inf.onboardDate)}</Text>
+              </Stack>
+              <Stack direction="row">
+                <Text fontWeight="medium" minW="120px">
+                  Renewal
+                </Text>
+                <Text color="gray.500">
+                  {formatDate(inf.plan?.renewalDate)}
+                </Text>
+              </Stack>
+            </Stack>
+          </Box>
+        </SimpleGrid>
+      </Stack>
+    </Box>
   );
 };
 

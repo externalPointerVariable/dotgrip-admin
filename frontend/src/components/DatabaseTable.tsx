@@ -1,16 +1,4 @@
-import {
-  Flex,
-  Button,
-  Icon,
-  Input,
-  InputGroup,
-  Center,
-  Box,
-  Text,
-  Table,
-  Checkbox,
-  Tabs,
-} from "@chakra-ui/react";
+import { Icon, Center, Box, Text, Table, Checkbox } from "@chakra-ui/react";
 import { IoMdOpen } from "react-icons/io";
 import {
   createColumnHelper,
@@ -21,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import type { Influencer } from "@/types/influencer";
+import { InfluencerProfile } from "@/pages";
 
 export default function DatabaseTable({
   filteredInfluencers,
@@ -28,6 +17,10 @@ export default function DatabaseTable({
   filteredInfluencers: Influencer[];
 }) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [selectedInfluencer, setSelectedInfluencer] =
+    useState<Influencer | null>(null);
+
+  const unsetSelectedInfluencer = () => setSelectedInfluencer(null);
 
   const columnHelper = createColumnHelper<Influencer>();
 
@@ -51,7 +44,11 @@ export default function DatabaseTable({
     columnHelper.accessor("name", {
       header: "Name",
       enableSorting: true,
-      cell: (info) => <Text>{info.getValue() || "Anonymous"}</Text>,
+      cell: (info) => (
+        <Text onClick={() => setSelectedInfluencer(info.row.original)}>
+          {info.getValue() || "Anonymous"}
+        </Text>
+      ),
     }),
     columnHelper.accessor("instagramLink", {
       header: "Instagram Link",
@@ -102,6 +99,15 @@ export default function DatabaseTable({
       ),
     },
   });
+
+  if (selectedInfluencer) {
+    return (
+      <InfluencerProfile
+        unsetSelectedInfluencer={unsetSelectedInfluencer}
+        dummyInfluencer={selectedInfluencer}
+      />
+    );
+  }
 
   return (
     <Center>
