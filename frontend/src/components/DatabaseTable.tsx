@@ -16,7 +16,6 @@ export default function DatabaseTable({
 }: {
   filteredInfluencers: Influencer[];
 }) {
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [selectedInfluencer, setSelectedInfluencer] =
     useState<Influencer | null>(null);
 
@@ -85,19 +84,6 @@ export default function DatabaseTable({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     enableRowSelection: true,
-    onRowSelectionChange: (updater) => {
-      const newSelection =
-        typeof updater === "function"
-          ? updater(table.getState().rowSelection)
-          : updater;
-      setSelectedRows(Object.keys(newSelection));
-    },
-    state: {
-      rowSelection: selectedRows.reduce(
-        (acc, id) => ({ ...acc, [id]: true }),
-        {},
-      ),
-    },
   });
 
   if (selectedInfluencer) {
