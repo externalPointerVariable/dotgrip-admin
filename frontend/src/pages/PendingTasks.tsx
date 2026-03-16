@@ -37,7 +37,17 @@ export default function PendingTasks() {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 401) {
+            localStorage.removeItem("token");
+            throw new Error("Unauthorized. Please log in again.");
+            window.location.reload();
+          }
+          if (!response.ok) {
+            throw new Error("Failed to fetch pending tasks");
+          }
+          return response.json();
+        })
         .then((data) => setPendingTasks(data));
     } catch (error) {
       setError("Failed to fetch pending tasks");

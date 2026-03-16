@@ -36,6 +36,19 @@ function Database() {
           },
         },
       );
+
+      if (response.status === 401) {
+        setError("Unauthorized. Please log in again.");
+        setLoading(false);
+        localStorage.removeItem("token");
+        window.location.reload();
+        return;
+      } else if (!response.ok) {
+        setError(`Error: ${response.status} ${response.statusText}`);
+        setLoading(false);
+        return;
+      }
+
       const data = await response.json();
       setInfluencers(data);
     } catch (error) {

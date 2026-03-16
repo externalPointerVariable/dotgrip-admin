@@ -29,10 +29,6 @@ function App() {
       heading: "Dashboard",
       subheading: "Overview of your influencer network",
     },
-    influencers: {
-      heading: "Influencer Profile",
-      subheading: "Detailed insights into influencer performance",
-    },
     database: {
       heading: "Database",
       subheading: "Manage your influencer database",
@@ -44,10 +40,6 @@ function App() {
     inactive: {
       heading: "Inactive Profiles",
       subheading: "Review inactive influencer profiles",
-    },
-    profile: {
-      heading: "Profile",
-      subheading: "Manage your user profile settings",
     },
     settings: {
       heading: "Settings",

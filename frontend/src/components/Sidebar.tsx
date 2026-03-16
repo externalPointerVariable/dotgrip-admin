@@ -59,12 +59,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       component: Dashboard,
     },
     {
-      id: "influencers",
-      label: "Influencer Profile",
-      icon: LuUserCheck,
-      component: InfluencerProfile,
-    },
-    {
       id: "database",
       label: "Database",
       icon: LuDatabase,
@@ -82,7 +76,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: LuUserX,
       component: InactiveProfiles,
     },
-    { id: "profile", label: "Profile", icon: LuUserCheck, component: Profile },
     {
       id: "settings",
       label: "Settings",

@@ -142,7 +142,12 @@ const InfluencerForm = ({
         },
       );
 
-      if (!response.ok) {
+      if (response.status === 401) {
+        setError("Unauthorized. Please log in again.");
+        localStorage.removeItem("token");
+        window.location.reload();
+        return;
+      } else if (!response.ok) {
         throw new Error("Failed to update influencer");
       }
 
