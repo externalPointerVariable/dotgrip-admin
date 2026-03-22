@@ -15,7 +15,6 @@ import {
 import { FiEdit2 } from "react-icons/fi";
 import type { Influencer } from "@/types/influencer";
 import { useEffect, useState } from "react";
-import { InfluencerProfile } from "@/pages";
 
 const formatNumber = (value?: number | null) =>
   value === undefined || value === null ? "N/A" : value.toLocaleString();
@@ -83,6 +82,9 @@ export default function CardsView() {
       console.error("Error fetching influencers:", error);
     }
   }, []);
+
+  if (loading) return <Text>Loading...</Text>;
+  else if (error) return <Text>{error}</Text>;
 
   return (
     <VStack>
