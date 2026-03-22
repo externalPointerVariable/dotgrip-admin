@@ -74,7 +74,6 @@ function App() {
         isCollapsed={isCollapsed}
         onActiveItemChange={storedActiveItem}
       />
-      <Toaster />
     </>
   );
 }

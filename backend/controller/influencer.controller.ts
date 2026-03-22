@@ -1,20 +1,88 @@
+import { parseConfigFileTextToJson } from "typescript";
 import { Influencer } from "../models/influencer.model";
 import { getInstagramDetails } from "../utils/instagram.utils";
 import { SheetUtil } from "../utils/sheet.utils";
 import express from "express";
 
+
+interface FilterQuery {
+  niches?: string;
+  tier?: string;
+  regions?: string;
+  keywords?: string;
+  taskstatus?: string;
+  page?: string;
+  limit?: string;
+}
 export class InfluencerController {
   static async getAllInfluencers(req: express.Request, res: express.Response) {
     try {
-      const influencers = await Influencer.find();
-      res.json(
-        influencers.filter((inf) => {
-          if (req.query.status) {
-            return inf.taskStatus === req.query.status;
-          }
-          return true;
-        }),
-      );
+      const {
+        niches,
+        tier,
+        regions,
+        keywords,
+        taskstatus = "approved",
+        page = "1",
+        limit = "10",
+      }: FilterQuery = req.query;
+
+      const filter: any = {};
+
+      if (niches) {
+        filter.niches = niches;
+      }
+      if (tier) {
+        filter.tier = tier;
+      }
+      if (regions) {
+        filter.regions = regions;
+      }
+      if (keywords) {
+        const regex = new RegExp(keywords, "i"); 
+        filter.$or = [
+          { name: regex },
+          { description: regex },
+        ];
+      }
+      const pageNumber: number = parseInt(page, 10);
+      const limitNumber: number = parseInt(limit, 10);
+      const skip: number = (pageNumber - 1) * limitNumber;
+
+      const [Influencers, total] = await Promise.all([
+        Influencer.find(filter).skip(skip).limit(limitNumber),
+        Influencer.countDocuments(filter),
+      ]);
+      const [uniqueNiches, uniqueTiers, uniqueRegions, uniqueKeywords] = await Promise.all([
+        Influencer.distinct("niches", filter),
+        Influencer.distinct("tier", filter),
+        Influencer.distinct("regions", filter),
+        Influencer.distinct("keywords", filter),
+      ]);
+      res.json({
+        data: Influencers,
+        pagination: {
+          total,
+          page: pageNumber,
+          limit: limitNumber,
+          totalPages: Math.ceil(total / limitNumber),
+        },
+        uniqueFiltersValues: {
+          niches: uniqueNiches,
+          tiers: uniqueTiers,
+          regions: uniqueRegions,
+          keywords: uniqueKeywords,
+        },
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async getPendingInfluencers (req: express.Request, res: express.Response) {
+    try {
+      const pendingInfluencers = await Influencer.find({ taskStatus: "pending" });
+      res.json(pendingInfluencers);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
