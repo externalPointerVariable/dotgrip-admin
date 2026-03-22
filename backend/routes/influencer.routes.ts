@@ -7,6 +7,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get("/", InfluencerController.getAllInfluencers);
+router.get("/pending-influencers/", InfluencerController.getPendingInfluencers);
 router.patch(
   "/instagram-scrape/",
   InfluencerController.updateSingleInstagramAnalytics,
