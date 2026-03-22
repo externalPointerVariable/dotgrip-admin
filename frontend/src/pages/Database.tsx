@@ -5,91 +5,18 @@ import {
   Input,
   InputGroup,
   Center,
-  Box,
-  Text,
-  Table,
-  Checkbox,
   Tabs,
 } from "@chakra-ui/react";
 import { LuDownload, LuSearch } from "react-icons/lu";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MenuItem from "@/components/MenuItem";
 import DatabaseTable from "@/components/DatabaseTable";
 import CardsView from "@/components/CardsView";
-import type { Influencer } from "@/types/influencer";
 
 function Database() {
   const [nicheActive, setNicheActive] = useState<boolean>(false);
-  const [influencers, setInfluencers] = useState<Influencer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const items = [{ value: "1", label: "Fashion" }];
-
-  const fetchInfluencers = async (token: string) => {
-    try {
-      const response = await fetch(
-        "http://localhost:8000/api/influencers?status=approved",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (response.status === 401) {
-        setError("Unauthorized. Please log in again.");
-        setLoading(false);
-        localStorage.removeItem("token");
-        window.location.reload();
-        return;
-      } else if (!response.ok) {
-        setError(`Error: ${response.status} ${response.statusText}`);
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
-      setInfluencers(data);
-    } catch (error) {
-      setError("Failed to fetch influencers");
-      console.error("Error fetching influencers:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("No token found. Please log in.");
-      setLoading(false);
-      return;
-    }
-
-    fetchInfluencers(token);
-  }, []);
-
-  const filteredInfluencers =
-    typeof influencers === "object" && influencers.length > 0
-      ? influencers.filter((influencer) => {
-          const searchLower = searchQuery.toLowerCase();
-          const matchesName = influencer.name
-            ? influencer.name.toLowerCase().includes(searchLower)
-            : false;
-          const matchesInstagram = influencer.instagramLink
-            .toLowerCase()
-            .includes(searchLower);
-          return matchesName || matchesInstagram;
-        })
-      : [];
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  } else if (error) {
-    return <Text>Error: {error}</Text>;
-  }
 
   return (
     <>
@@ -134,10 +61,10 @@ function Database() {
             <Tabs.Indicator />
           </Tabs.List>
           <Tabs.Content value="table">
-            <DatabaseTable filteredInfluencers={filteredInfluencers} />
+            <DatabaseTable />
           </Tabs.Content>
           <Tabs.Content value="card">
-            <CardsView filteredInfluencers={filteredInfluencers} />
+            <CardsView />
           </Tabs.Content>
         </Tabs.Root>
       </Center>

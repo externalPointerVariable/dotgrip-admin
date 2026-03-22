@@ -13,7 +13,7 @@ export const FileUpload: React.FC<{ closeDialog: () => void }> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     if (!file) {
       setMessage("Please select a file");
@@ -22,11 +22,15 @@ export const FileUpload: React.FC<{ closeDialog: () => void }> = ({
 
     setLoading(true);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("excelFile", file);
 
     try {
-      const response = await fetch("/api/upload", {
+      const response = await fetch("http://localhost:8000/api/influencers/", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+
         body: formData,
       });
 

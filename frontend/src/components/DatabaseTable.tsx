@@ -1,164 +1,111 @@
-import { Icon, Center, Box, Text, Table, Checkbox } from "@chakra-ui/react";
-import { IoMdOpen } from "react-icons/io";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useState } from "react";
 import type { Influencer } from "@/types/influencer";
-import { InfluencerProfile } from "@/pages";
+import {
+  Center,
+  HStack,
+  NativeSelect,
+  Table,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
-export default function DatabaseTable({
-  filteredInfluencers,
-}: {
-  filteredInfluencers: Influencer[];
-}) {
-  const [selectedInfluencer, setSelectedInfluencer] =
-    useState<Influencer | null>(null);
+export default function DatabaseTable() {
+  const [influencers, setInfluencers] = useState<[Influencer] | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const unsetSelectedInfluencer = () => setSelectedInfluencer(null);
+  useEffect(() => {
+    try {
+      fetch("http://localhost:8000/api/influencers", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+        .then((response) => {
+          if (response.status == 401) {
+            localStorage.removeItem("token");
+            window.location.reload();
+          }
 
-  const columnHelper = createColumnHelper<Influencer>();
+          return response;
+        })
+        .then((response) => {
+          setLoading(false);
+          return response.json();
+        })
+        .then((data) => {
+          setCurrentPage(data.pagination.page);
+          setTotalPages(
+            Array.from({ length: data.pagination.totalPages }, (_, i) => i + 1),
+          );
+          setInfluencers(data.data);
+        });
+    } catch (error: any) {
+      setError(error.message);
+      console.error("Error fetching influencers:", error);
+    }
+  }, []);
 
-  const columns = [
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox.Root
-          checked={table.getIsAllRowsSelected()}
-          onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox.Root
-          checked={row.getIsSelected()}
-          onCheckedChange={row.getToggleSelectedHandler()}
-        />
-      ),
-      enableSorting: false,
-    }),
-    columnHelper.accessor("name", {
-      header: "Name",
-      enableSorting: true,
-      cell: (info) => (
-        <Text onClick={() => setSelectedInfluencer(info.row.original)}>
-          {info.getValue() || "Anonymous"}
-        </Text>
-      ),
-    }),
-    columnHelper.accessor("instagramLink", {
-      header: "Instagram Link",
-      enableSorting: true,
-      cell: (info) => (
-        <Text>
-          {info.getValue() + " "}
-          <a href={info.getValue()} target="_blank" rel="noopener noreferrer">
-            <Icon as={IoMdOpen} boxSize={3} />
-          </a>
-        </Text>
-      ),
-    }),
-    columnHelper.accessor("instagram.averageLikes", {
-      header: "Average Likes",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("instagram.followerCount", {
-      header: "Follower Count",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.display({
-      id: "status",
-      header: "Status",
-      cell: () => <Text>Approved</Text>,
-    }),
-  ];
-
-  const table = useReactTable({
-    data: filteredInfluencers,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    enableRowSelection: true,
-  });
-
-  if (selectedInfluencer) {
-    return (
-      <InfluencerProfile
-        unsetSelectedInfluencer={unsetSelectedInfluencer}
-        dummyInfluencer={selectedInfluencer}
-      />
-    );
-  }
+  if (loading) return <Text>Loading...</Text>;
+  else if (error) return <Text>{error}</Text>;
 
   return (
     <Center>
-      <Table.Root
-        p={20}
-        showColumnBorder={true}
-        variant="outline"
-        textAlign={"left"}
-      >
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder ? null : (
-                    <Box
-                      as="button"
-                      onClick={header.column.getToggleSortingHandler()}
-                      cursor={
-                        header.column.getCanSort() ? "pointer" : "default"
-                      }
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      w="full"
-                      p={2}
-                      bg="transparent"
-                      border="none"
-                      _hover={{
-                        bg: header.column.getCanSort()
-                          ? "gray.100"
-                          : "transparent",
-                      }}
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                      {header.column.getCanSort() && (
-                        <Text ml={2}>
-                          {{
-                            asc: "↑",
-                            desc: "↓",
-                          }[header.column.getIsSorted() as string] ?? "↕"}
-                        </Text>
-                      )}
-                    </Box>
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </Table.Root>
+      <VStack>
+        <Table.Root>
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>Influencer</Table.ColumnHeader>
+              <Table.ColumnHeader>Followers</Table.ColumnHeader>
+              <Table.ColumnHeader>Rating</Table.ColumnHeader>
+              <Table.ColumnHeader>Niche</Table.ColumnHeader>
+              <Table.ColumnHeader>Avg. Views</Table.ColumnHeader>
+              <Table.ColumnHeader>Avg. Likes</Table.ColumnHeader>
+              <Table.ColumnHeader>Location</Table.ColumnHeader>
+              <Table.ColumnHeader>Status</Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {influencers &&
+              influencers.length > 0 &&
+              influencers.map((influencer) => {
+                return (
+                  <Table.Row key={influencer._id}>
+                    <Table.Cell>{influencer.name}</Table.Cell>
+                    <Table.Cell>
+                      {influencer.instagram?.followerCount}
+                    </Table.Cell>
+                    <Table.Cell>{influencer.contentRating}</Table.Cell>
+                    <Table.Cell>{influencer.primeNiche}</Table.Cell>
+                    <Table.Cell>
+                      {influencer.instagram?.averageViews}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {influencer.instagram?.averageLikes}
+                    </Table.Cell>
+                    <Table.Cell>{influencer.address?.[0].city}</Table.Cell>
+                    <Table.Cell>{influencer.taskStatus}</Table.Cell>
+                  </Table.Row>
+                );
+              })}
+          </Table.Body>
+        </Table.Root>
+        <HStack>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              placeholder={currentPage.toString()}
+            ></NativeSelect.Field>
+            {totalPages.map((page) => (
+              <option key={page} value={page.toString()}></option>
+            ))}
+          </NativeSelect.Root>
+          /{totalPages.length}
+        </HStack>
+      </VStack>
     </Center>
   );
 }
