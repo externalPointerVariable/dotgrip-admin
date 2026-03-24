@@ -10,11 +10,10 @@ import {
   Text,
   AvatarGroup,
   VStack,
-  NativeSelect,
+  Center,
 } from "@chakra-ui/react";
 import { FiEdit2 } from "react-icons/fi";
 import type { Influencer } from "@/types/influencer";
-import { useEffect, useState } from "react";
 
 const formatNumber = (value?: number | null) =>
   value === undefined || value === null ? "N/A" : value.toLocaleString();
@@ -42,52 +41,13 @@ const getInitials = (name?: string) => {
     .join("");
 };
 
-export default function CardsView() {
-  const [influencers, setInfluencers] = useState<Influencer[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState<number[]>([1]);
+interface CardViewProps {
+  influencers: [Influencer] | null;
+}
 
-  useEffect(() => {
-    try {
-      fetch("http://localhost:8000/api/influencers", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-        .then((response) => {
-          if (response.status == 401) {
-            localStorage.removeItem("token");
-            window.location.reload();
-          }
-
-          return response;
-        })
-        .then((response) => {
-          setLoading(false);
-          return response.json();
-        })
-        .then((data) => {
-          setCurrentPage(data.pagination.page);
-          setTotalPages(
-            Array.from({ length: data.pagination.totalPages }, (_, i) => i + 1),
-          );
-          setInfluencers(data.data);
-        });
-    } catch (error: any) {
-      setError(error.message);
-      console.error("Error fetching influencers:", error);
-    }
-  }, []);
-
-  if (loading) return <Text>Loading...</Text>;
-  else if (error) return <Text>{error}</Text>;
-
+export default function CardsView({ influencers }: CardViewProps) {
   return (
-    <VStack>
+    <Center>
       <Grid
         gap={6}
         templateColumns={{
@@ -96,7 +56,8 @@ export default function CardsView() {
           lg: "repeat(3, 1fr)",
         }}
       >
-        {influencers.length > 0 &&
+        {influencers &&
+          influencers.length > 0 &&
           influencers.map((influencer) => {
             const instagramHandle = getInstagramHandle(
               influencer.instagramLink,
@@ -268,17 +229,6 @@ export default function CardsView() {
             );
           })}
       </Grid>
-      <HStack>
-        <NativeSelect.Root>
-          <NativeSelect.Field
-            placeholder={currentPage.toString()}
-          ></NativeSelect.Field>
-          {totalPages.map((page) => (
-            <option key={page} value={page.toString()}></option>
-          ))}
-        </NativeSelect.Root>
-        /{totalPages.length}
-      </HStack>
-    </VStack>
+    </Center>
   );
 }
