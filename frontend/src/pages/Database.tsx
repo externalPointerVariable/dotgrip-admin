@@ -1,50 +1,175 @@
 import {
-  Flex,
   Button,
   Icon,
   Input,
   InputGroup,
-  Center,
   Tabs,
+  Text,
+  HStack,
+  NativeSelect,
+  VStack,
 } from "@chakra-ui/react";
 import { LuDownload, LuSearch } from "react-icons/lu";
-import { useState } from "react";
-import MenuItem from "@/components/MenuItem";
+import { useEffect, useState } from "react";
 import DatabaseTable from "@/components/DatabaseTable";
 import CardsView from "@/components/CardsView";
+import type { Influencer } from "@/types/influencer";
 
 function Database() {
-  const [nicheActive, setNicheActive] = useState<boolean>(false);
+  const [influencers, setInfluencers] = useState<[Influencer] | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const items = [{ value: "1", label: "Fashion" }];
+  const [niches, setNiches] = useState<string[]>([]);
+  const [activeNiche, setActiveNiche] = useState<string>("");
+  const [tiers, setTiers] = useState<string[]>([]);
+  const [activeTier, setActiveTier] = useState<string>("");
+  const [regions, setRegions] = useState<string[]>([]);
+  const [activeRegion, setActiveRegion] = useState<string>("");
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [activeKeyword, setActiveKeyword] = useState<string>("");
+  const [filteredInfluencers, setFilteredInfluencers] = useState<
+    [Influencer] | null
+  >(null);
+
+  function fetchInfluencers() {
+    try {
+      fetch(`http://localhost:8000/api/influencers/?page=${currentPage}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+        .then((response) => {
+          if (response.status == 401) {
+            localStorage.removeItem("token");
+            window.location.reload();
+          }
+
+          return response;
+        })
+        .then((response) => {
+          setLoading(false);
+          return response.json();
+        })
+        .then((data) => {
+          setNiches(data.uniqueFiltersValues.niches);
+          setTiers(data.uniqueFiltersValues.tiers);
+          setRegions(data.uniqueFiltersValues.regions);
+          setKeywords(data.uniqueFiltersValues.keywords);
+          setCurrentPage(data.pagination.page);
+          setTotalPages(
+            Array.from({ length: data.pagination.totalPages }, (_, i) => i + 1),
+          );
+          setFilteredInfluencers(data.data);
+          setInfluencers(data.data);
+        });
+    } catch (error: any) {
+      setError(error.message);
+      console.error("Error fetching influencers:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchInfluencers();
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (!searchQuery.trim() || !influencers) {
+      setFilteredInfluencers(null);
+      return;
+    }
+
+    const filtered = influencers.filter(
+      (influencer) =>
+        influencer.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        influencer.instagramLink
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()),
+    );
+
+    console.log(filteredInfluencers);
+
+    setFilteredInfluencers(
+      filtered.length > 0 ? (filtered as [Influencer]) : null,
+    );
+  }, [searchQuery, influencers]);
+
+  if (loading) return <Text>Loading...</Text>;
+  else if (error) return <Text>{error}</Text>;
 
   return (
     <>
-      <Flex gap={4} justifyContent={"space-between"}>
-        <Button _hover={{ bg: "cyan.600", color: "white" }}>
-          <Icon as={LuDownload} mr={2} />
-          Export
-        </Button>
-        <InputGroup
-          startElement={<LuSearch />}
-          marginEnd={"auto"}
-          width={"50%"}
-          _active={{ border: "cyan.600" }}
-        >
-          <Input
-            placeholder="Search by name or Instagram handle"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </InputGroup>
-        <MenuItem
-          label="All Niches"
-          items={items}
-          isActive={nicheActive}
-          setActive={setNicheActive}
-        />
-      </Flex>
-      <Center w="100%" p={4} marginTop={4}>
+      <VStack w="100%" p={4} alignItems={"Space-between"}>
+        <HStack w="100%" justifyContent={"space-between"}>
+          <Button _hover={{ bg: "cyan.600", color: "white" }}>
+            <Icon as={LuDownload} mr={2} />
+            Export
+          </Button>
+          <InputGroup
+            startElement={<LuSearch />}
+            marginEnd={"auto"}
+            width={"50%"}
+            _active={{ border: "cyan.600" }}
+          >
+            <Input
+              placeholder="Search by name or Instagram handle"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </InputGroup>
+        </HStack>
+        <HStack>
+          <NativeSelect.Root
+            value={activeNiche}
+            onChange={(e) => setActiveNiche(e.target.value)}
+          >
+            <NativeSelect.Field placeholder="Filter by niche"></NativeSelect.Field>
+            {niches.map((niche) => (
+              <option key={niche} value={niche}>
+                {niche}
+              </option>
+            ))}
+          </NativeSelect.Root>
+          <NativeSelect.Root
+            value={activeTier}
+            onChange={(e) => setActiveTier(e.target.value)}
+          >
+            <NativeSelect.Field placeholder="Filter by tier"></NativeSelect.Field>
+            {tiers.map((tier) => (
+              <option key={tier} value={tier}>
+                {tier}
+              </option>
+            ))}
+          </NativeSelect.Root>
+          <NativeSelect.Root
+            value={activeRegion}
+            onChange={(e) => setActiveRegion(e.target.value)}
+          >
+            <NativeSelect.Field placeholder="Filter by region"></NativeSelect.Field>
+            {regions.map((region) => (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            ))}
+          </NativeSelect.Root>
+          <NativeSelect.Root
+            value={activeKeyword}
+            onChange={(e) => setActiveKeyword(e.target.value)}
+          >
+            <NativeSelect.Field placeholder="Filter by keyword"></NativeSelect.Field>
+            {keywords.map((keyword) => (
+              <option key={keyword} value={keyword}>
+                {keyword}
+              </option>
+            ))}
+          </NativeSelect.Root>
+        </HStack>
+      </VStack>
+      <VStack w="100%" p={4} marginTop={4}>
         <Tabs.Root
           w="100%"
           defaultValue="table"
@@ -61,13 +186,34 @@ function Database() {
             <Tabs.Indicator />
           </Tabs.List>
           <Tabs.Content value="table">
-            <DatabaseTable />
+            <DatabaseTable
+              influencers={
+                searchQuery !== "" ? filteredInfluencers : influencers
+              }
+            />
           </Tabs.Content>
           <Tabs.Content value="card">
-            <CardsView />
+            <CardsView
+              influencers={
+                searchQuery !== "" ? filteredInfluencers : influencers
+              }
+            />
           </Tabs.Content>
         </Tabs.Root>
-      </Center>
+        <HStack>
+          <NativeSelect.Root
+            onChange={(value) => setCurrentPage(Number(value))}
+          >
+            <NativeSelect.Field
+              placeholder={currentPage.toString()}
+            ></NativeSelect.Field>
+            {totalPages.map((page) => (
+              <option key={page} value={page.toString()}></option>
+            ))}
+          </NativeSelect.Root>
+          /{totalPages.length}
+        </HStack>
+      </VStack>
     </>
   );
 }
