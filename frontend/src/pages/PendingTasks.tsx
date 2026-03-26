@@ -32,7 +32,7 @@ export default function PendingTasks() {
 
   const fetchPendingTasks = async (token: string) => {
     try {
-      fetch("http://localhost:8000/api/influencers?status=pending", {
+      fetch("http://localhost:8000/api/influencers/pending-influencers", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
