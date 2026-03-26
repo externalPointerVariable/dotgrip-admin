@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+.upload-form {
+  min-width: 60vw;
+  position: relative;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 60vh;
+}

@@ -20,7 +20,7 @@ import {
 import { IoMdOpen } from "react-icons/io";
 import InfluencerForm from "@/components/InfluencerForm";
 import { LuSheet } from "react-icons/lu";
-import { FileUpload } from "@/components/FileUpload";
+import { FileUploader } from "@/components/FileUploader";
 import type { Influencer } from "@/types/influencer";
 
 export default function PendingTasks() {
@@ -136,7 +136,7 @@ export default function PendingTasks() {
   }
 
   if (uploadFile) {
-    return <FileUpload closeDialog={handleCloseFileUpload} />;
+    return <FileUploader closeDialog={handleCloseFileUpload} />;
   }
 
   return (

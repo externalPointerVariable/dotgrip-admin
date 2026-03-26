@@ -1,6 +1,8 @@
+import { Button, Icon, FileUpload, Box, Center } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { LuUpload } from "react-icons/lu";
 
-export const FileUpload: React.FC<{ closeDialog: () => void }> = ({
+export const FileUploader: React.FC<{ closeDialog: () => void }> = ({
   closeDialog,
 }) => {
   const [file, setFile] = useState<File | null>(null);
@@ -50,18 +52,37 @@ export const FileUpload: React.FC<{ closeDialog: () => void }> = ({
 
   return (
     <dialog open>
-      <h2>Upload Excel File</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="file"
-          accept=".xlsx,.xls,.csv"
+      <form className="upload-form" onSubmit={handleSubmit}>
+        <FileUpload.Root
           onChange={handleFileChange}
           disabled={loading}
-        />
-        {file && <p>Selected: {file.name}</p>}
-        <button type="submit" disabled={loading || !file}>
+          accept={[
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          ]}
+          maxFiles={1}
+          w={"100%"}
+        >
+          <FileUpload.HiddenInput />
+          <FileUpload.Dropzone w={"100%"}>
+            <Icon>
+              <LuUpload />
+            </Icon>
+            <FileUpload.DropzoneContent>
+              <Box>Drag and Drop Files here.</Box>
+              <Box>.xls, .xlsx</Box>
+            </FileUpload.DropzoneContent>
+          </FileUpload.Dropzone>
+          <FileUpload.List />
+        </FileUpload.Root>
+        <Button
+          type="submit"
+          disabled={loading || !file}
+          _hover={{ bg: "cyan.600", color: "white" }}
+        >
+          <Icon as={LuUpload} mr={2} />
           {loading ? "Uploading..." : "Upload"}
-        </button>
+        </Button>
       </form>
       {message && <p>{message}</p>}
     </dialog>
