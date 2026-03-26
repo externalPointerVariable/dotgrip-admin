@@ -35,6 +35,16 @@ function Database() {
   >(null);
 
   function fetchInfluencers() {
+    const queryParams = {
+      niches: activeNiche,
+      tier: activeTier,
+      regions: activeRegion,
+      keywords,
+      page: currentPage,
+    };
+
+    const url = new URL("http://localhost:8000/api/influencers/");
+    url.search = new URLSearchParams(queryParams.toString()).toString();
     try {
       fetch(`http://localhost:8000/api/influencers/?page=${currentPage}`, {
         method: "GET",
@@ -90,8 +100,6 @@ function Database() {
           .toLowerCase()
           .includes(searchQuery.toLowerCase()),
     );
-
-    console.log(filteredInfluencers);
 
     setFilteredInfluencers(
       filtered.length > 0 ? (filtered as [Influencer]) : null,

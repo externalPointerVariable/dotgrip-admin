@@ -1,5 +1,5 @@
 import type { Influencer } from "@/types/influencer";
-import { Center, Table } from "@chakra-ui/react";
+import { Center, RatingGroup, Table } from "@chakra-ui/react";
 
 interface DatabaseTableProps {
   influencers: [Influencer] | null;
@@ -29,7 +29,17 @@ export default function DatabaseTable({ influencers }: DatabaseTableProps) {
                 <Table.Row key={influencer._id}>
                   <Table.Cell>{influencer.name}</Table.Cell>
                   <Table.Cell>{influencer.instagram?.followerCount}</Table.Cell>
-                  <Table.Cell>{influencer.contentRating}</Table.Cell>
+                  <Table.Cell>
+                    <RatingGroup.Root
+                      allowHalf
+                      readOnly
+                      count={5}
+                      value={influencer?.contentRating || 0}
+                    >
+                      <RatingGroup.HiddenInput />
+                      <RatingGroup.Control />
+                    </RatingGroup.Root>
+                  </Table.Cell>
                   <Table.Cell>{influencer.primeNiche}</Table.Cell>
                   <Table.Cell>{influencer.instagram?.averageViews}</Table.Cell>
                   <Table.Cell>{influencer.instagram?.averageLikes}</Table.Cell>
