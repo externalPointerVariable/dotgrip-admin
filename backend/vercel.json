@@ -1,8 +1,7 @@
 {
-  "builds": [
-    {
-      "src": "index.ts",
-      "use": "@vercel/node"
+  "functions": {
+    "api/index.ts": {
+      "runtime": "vercel-bun@latest"
     }
-  ]
+  }
 }
