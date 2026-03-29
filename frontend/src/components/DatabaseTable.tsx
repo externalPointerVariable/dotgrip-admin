@@ -1,11 +1,35 @@
+import { InfluencerProfile } from "@/pages";
 import type { Influencer } from "@/types/influencer";
-import { Center, RatingGroup, Table } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  HStack,
+  RatingGroup,
+  Table,
+  Text,
+} from "@chakra-ui/react";
+import { useState } from "react";
+import { LuExternalLink } from "react-icons/lu";
 
 interface DatabaseTableProps {
   influencers: [Influencer] | null;
 }
 
 export default function DatabaseTable({ influencers }: DatabaseTableProps) {
+  const [current, setCurrent] = useState<Influencer | null>(null);
+
+  const unset = () => {
+    setCurrent(null);
+  };
+
+  if (current)
+    return (
+      <InfluencerProfile
+        dummyInfluencer={current}
+        unsetSelectedInfluencer={unset}
+      />
+    );
+
   return (
     <Center>
       <Table.Root>
@@ -27,10 +51,24 @@ export default function DatabaseTable({ influencers }: DatabaseTableProps) {
             influencers.map((influencer) => {
               return (
                 <Table.Row key={influencer._id}>
-                  <Table.Cell>{influencer.name}</Table.Cell>
+                  <Table.Cell>
+                    <Box>
+                      <Text onClick={() => setCurrent(influencer)}>
+                        {influencer.name}
+                      </Text>
+                      <br />
+                      <HStack>
+                        {"@" + influencer.instagramLink.split("/")[3]}
+                        <a href={influencer.instagramLink} target="_blank">
+                          <LuExternalLink />
+                        </a>
+                      </HStack>
+                    </Box>
+                  </Table.Cell>
                   <Table.Cell>{influencer.instagram?.followerCount}</Table.Cell>
                   <Table.Cell>
                     <RatingGroup.Root
+                      colorPalette={"yellow"}
                       allowHalf
                       readOnly
                       count={5}

@@ -14,6 +14,9 @@ import {
 } from "@chakra-ui/react";
 import { FiEdit2 } from "react-icons/fi";
 import type { Influencer } from "@/types/influencer";
+import { useState } from "react";
+import { InfluencerProfile } from "@/pages";
+import { LuExternalLink } from "react-icons/lu";
 
 const formatNumber = (value?: number | null) =>
   value === undefined || value === null ? "N/A" : value.toLocaleString();
@@ -46,6 +49,18 @@ interface CardViewProps {
 }
 
 export default function CardsView({ influencers }: CardViewProps) {
+  const [current, setCurrent] = useState<Influencer | null>(null);
+  const unset = () => {
+    setCurrent(null);
+  };
+
+  if (current)
+    return (
+      <InfluencerProfile
+        dummyInfluencer={current}
+        unsetSelectedInfluencer={unset}
+      />
+    );
   return (
     <Center>
       <Grid
@@ -104,12 +119,19 @@ export default function CardsView({ influencers }: CardViewProps) {
                       </AvatarGroup>
 
                       <Box>
-                        <Text fontSize="lg" fontWeight="bold">
+                        <Text
+                          onClick={() => setCurrent(influencer)}
+                          fontSize="lg"
+                          fontWeight="bold"
+                        >
                           {influencer.name || "Unnamed"}
                         </Text>
-                        <Text fontSize="sm" color="gray.300">
+                        <HStack fontSize="sm" color="gray.300">
                           {instagramHandle}
-                        </Text>
+                          <a href={influencer.instagramLink} target="_blank">
+                            <LuExternalLink />
+                          </a>
+                        </HStack>
                       </Box>
                     </HStack>
 
