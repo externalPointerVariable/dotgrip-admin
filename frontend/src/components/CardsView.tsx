@@ -17,6 +17,7 @@ import type { Influencer } from "@/types/influencer";
 import { useState } from "react";
 import { InfluencerProfile } from "@/pages";
 import { LuExternalLink } from "react-icons/lu";
+import InfluencerForm from "./InfluencerForm";
 
 const formatNumber = (value?: number | null) =>
   value === undefined || value === null ? "N/A" : value.toLocaleString();
@@ -50,8 +51,11 @@ interface CardViewProps {
 
 export default function CardsView({ influencers }: CardViewProps) {
   const [current, setCurrent] = useState<Influencer | null>(null);
+  // const [edit, setEdit] = useState<Influencer["_id"] | null>(null);
+
   const unset = () => {
     setCurrent(null);
+    // setEdit(null);
   };
 
   if (current)
@@ -61,6 +65,7 @@ export default function CardsView({ influencers }: CardViewProps) {
         unsetSelectedInfluencer={unset}
       />
     );
+  // else if (edit) return <InfluencerForm influencerId={edit} onClose={unset} />;
   return (
     <Center>
       <Grid
@@ -135,15 +140,16 @@ export default function CardsView({ influencers }: CardViewProps) {
                       </Box>
                     </HStack>
 
-                    <IconButton
+                    {/* <IconButton
                       aria-label="Edit"
                       variant="ghost"
                       color="gray.200"
                       _hover={{ bg: "whiteAlpha.100" }}
                       size="sm"
+                      onClick={() => setEdit(influencer._id)}
                     >
                       <FiEdit2 />
-                    </IconButton>
+                    </IconButton> */}
                   </Flex>
 
                   <HStack mt={3} wrap="wrap">

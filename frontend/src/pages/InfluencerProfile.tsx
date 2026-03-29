@@ -164,10 +164,10 @@ const InfluencerProfile = ({
             </Box>
           </Flex>
 
-          <Button colorScheme="teal">
+          {/* <Button colorScheme="teal">
             <LuPencil />
             Edit Profile
-          </Button>
+          </Button> */}
         </Flex>
 
         {/* Stats Cards */}
