@@ -7,7 +7,8 @@
     "start": "bun --watch index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "bun": "^1.3.11"
   },
   "peerDependencies": {
     "typescript": "^5"
