@@ -1,7 +1,6 @@
 {
   "functions": {
     "api/index.ts": {
-      "bunVersion": "1.x",
       "runtime": "vercel-bun@latest"
     }
   }
