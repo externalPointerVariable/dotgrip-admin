@@ -1,163 +1,92 @@
-import { Icon, Center, Box, Text, Table, Checkbox } from "@chakra-ui/react";
-import { IoMdOpen } from "react-icons/io";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useState } from "react";
-import type { Influencer } from "@/types/influencer";
 import { InfluencerProfile } from "@/pages";
+import type { Influencer } from "@/types/influencer";
+import {
+  Box,
+  Center,
+  HStack,
+  RatingGroup,
+  Table,
+  Text,
+} from "@chakra-ui/react";
+import { useState } from "react";
+import { LuExternalLink } from "react-icons/lu";
 
-export default function DatabaseTable({
-  filteredInfluencers,
-}: {
-  filteredInfluencers: Influencer[];
-}) {
-  const [selectedInfluencer, setSelectedInfluencer] =
-    useState<Influencer | null>(null);
+interface DatabaseTableProps {
+  influencers: [Influencer] | null;
+}
 
-  const unsetSelectedInfluencer = () => setSelectedInfluencer(null);
+export default function DatabaseTable({ influencers }: DatabaseTableProps) {
+  const [current, setCurrent] = useState<Influencer | null>(null);
 
-  const columnHelper = createColumnHelper<Influencer>();
+  const unset = () => {
+    setCurrent(null);
+  };
 
-  const columns = [
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox.Root
-          checked={table.getIsAllRowsSelected()}
-          onCheckedChange={table.getToggleAllRowsSelectedHandler()}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox.Root
-          checked={row.getIsSelected()}
-          onCheckedChange={row.getToggleSelectedHandler()}
-        />
-      ),
-      enableSorting: false,
-    }),
-    columnHelper.accessor("name", {
-      header: "Name",
-      enableSorting: true,
-      cell: (info) => (
-        <Text onClick={() => setSelectedInfluencer(info.row.original)}>
-          {info.getValue() || "Anonymous"}
-        </Text>
-      ),
-    }),
-    columnHelper.accessor("instagramLink", {
-      header: "Instagram Link",
-      enableSorting: true,
-      cell: (info) => (
-        <Text>
-          {info.getValue() + " "}
-          <a href={info.getValue()} target="_blank" rel="noopener noreferrer">
-            <Icon as={IoMdOpen} boxSize={3} />
-          </a>
-        </Text>
-      ),
-    }),
-    columnHelper.accessor("instagram.averageLikes", {
-      header: "Average Likes",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("instagram.followerCount", {
-      header: "Follower Count",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
-    }),
-    columnHelper.display({
-      id: "status",
-      header: "Status",
-      cell: () => <Text>Approved</Text>,
-    }),
-  ];
-
-  const table = useReactTable({
-    data: filteredInfluencers,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    enableRowSelection: true,
-  });
-
-  if (selectedInfluencer) {
+  if (current)
     return (
       <InfluencerProfile
-        unsetSelectedInfluencer={unsetSelectedInfluencer}
-        dummyInfluencer={selectedInfluencer}
+        dummyInfluencer={current}
+        unsetSelectedInfluencer={unset}
       />
     );
-  }
 
   return (
     <Center>
-      <Table.Root
-        p={20}
-        showColumnBorder={true}
-        variant="outline"
-        textAlign={"left"}
-      >
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {header.isPlaceholder ? null : (
-                    <Box
-                      as="button"
-                      onClick={header.column.getToggleSortingHandler()}
-                      cursor={
-                        header.column.getCanSort() ? "pointer" : "default"
-                      }
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      w="full"
-                      p={2}
-                      bg="transparent"
-                      border="none"
-                      _hover={{
-                        bg: header.column.getCanSort()
-                          ? "gray.100"
-                          : "transparent",
-                      }}
-                    >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                      {header.column.getCanSort() && (
-                        <Text ml={2}>
-                          {{
-                            asc: "↑",
-                            desc: "↓",
-                          }[header.column.getIsSorted() as string] ?? "↕"}
-                        </Text>
-                      )}
+      <Table.Root>
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader>Influencer</Table.ColumnHeader>
+            <Table.ColumnHeader>Followers</Table.ColumnHeader>
+            <Table.ColumnHeader>Rating</Table.ColumnHeader>
+            <Table.ColumnHeader>Niche</Table.ColumnHeader>
+            <Table.ColumnHeader>Avg. Views</Table.ColumnHeader>
+            <Table.ColumnHeader>Avg. Likes</Table.ColumnHeader>
+            <Table.ColumnHeader>Location</Table.ColumnHeader>
+            <Table.ColumnHeader>Status</Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {influencers &&
+            influencers.length > 0 &&
+            influencers.map((influencer) => {
+              return (
+                <Table.Row key={influencer._id}>
+                  <Table.Cell>
+                    <Box>
+                      <Text onClick={() => setCurrent(influencer)}>
+                        {influencer.name}
+                      </Text>
+                      <br />
+                      <HStack>
+                        {"@" + influencer.instagramLink.split("/")[3]}
+                        <a href={influencer.instagramLink} target="_blank">
+                          <LuExternalLink />
+                        </a>
+                      </HStack>
                     </Box>
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
+                  </Table.Cell>
+                  <Table.Cell>{influencer.instagram?.followerCount}</Table.Cell>
+                  <Table.Cell>
+                    <RatingGroup.Root
+                      colorPalette={"yellow"}
+                      allowHalf
+                      readOnly
+                      count={5}
+                      value={influencer?.contentRating || 0}
+                    >
+                      <RatingGroup.HiddenInput />
+                      <RatingGroup.Control />
+                    </RatingGroup.Root>
+                  </Table.Cell>
+                  <Table.Cell>{influencer.primeNiche}</Table.Cell>
+                  <Table.Cell>{influencer.instagram?.averageViews}</Table.Cell>
+                  <Table.Cell>{influencer.instagram?.averageLikes}</Table.Cell>
+                  <Table.Cell>{influencer.address?.[0].city}</Table.Cell>
+                  <Table.Cell>{influencer.taskStatus}</Table.Cell>
+                </Table.Row>
+              );
+            })}
+        </Table.Body>
       </Table.Root>
     </Center>
   );

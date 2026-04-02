@@ -20,7 +20,7 @@ import {
 import { IoMdOpen } from "react-icons/io";
 import InfluencerForm from "@/components/InfluencerForm";
 import { LuSheet } from "react-icons/lu";
-import { FileUpload } from "@/components/FileUpload";
+import { FileUploader } from "@/components/FileUploader";
 import type { Influencer } from "@/types/influencer";
 
 export default function PendingTasks() {
@@ -32,7 +32,7 @@ export default function PendingTasks() {
 
   const fetchPendingTasks = async (token: string) => {
     try {
-      fetch("http://localhost:8000/api/influencers?status=pending", {
+      fetch("http://localhost:8000/api/influencers/pending-influencers", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -136,7 +136,7 @@ export default function PendingTasks() {
   }
 
   if (uploadFile) {
-    return <FileUpload closeDialog={handleCloseFileUpload} />;
+    return <FileUploader closeDialog={handleCloseFileUpload} />;
   }
 
   return (
