@@ -54,10 +54,10 @@ export class InfluencerController {
         Influencer.countDocuments(filter),
       ]);
       const [uniqueNiches, uniqueTiers, uniqueRegions, uniqueKeywords] = await Promise.all([
-        Influencer.distinct("niches", filter),
-        Influencer.distinct("tier", filter),
+        Influencer.distinct("primeNiche", filter),
+        Influencer.distinct("audienceCityTier", filter),
         Influencer.distinct("regions", filter),
-        Influencer.distinct("keywords", filter),
+        Influencer.distinct("contentKeywords", filter),
       ]);
       res.json({
         data: Influencers,
