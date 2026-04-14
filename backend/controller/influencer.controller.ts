@@ -11,6 +11,7 @@ interface FilterQuery {
   regions?: string;
   keywords?: string;
   taskstatus?: string;
+  numberOfFollowers?: string;
   page?: string;
   limit?: string;
 }
@@ -22,6 +23,7 @@ export class InfluencerController {
         tier,
         regions,
         keywords,
+        numberOfFollowers,
         taskstatus = "approved",
         page = "1",
         limit = "10",
@@ -38,6 +40,10 @@ export class InfluencerController {
       if (regions) {
         filter.regions = regions;
       }
+      if (numberOfFollowers) {
+        const [min, max] = numberOfFollowers.split("-").map(Number);
+        filter["instagram.followerCount"] = { $gte: min, $lte: max };
+      }
       if (keywords) {
         const regex = new RegExp(keywords, "i"); 
         filter.$or = [
@@ -53,10 +59,23 @@ export class InfluencerController {
         Influencer.find(filter).skip(skip).limit(limitNumber),
         Influencer.countDocuments(filter),
       ]);
+      const uniqueFollowerCountsBuckets = await Influencer.aggregate([
+        { $match: filter },
+        {
+          $bucket: {
+            groupBy: "$instagram.followerCount",
+            boundaries: [0, 1000, 10000, 100000, 1000000, 10000000],
+            default: "Other",
+            output: {
+              count: { $sum: 1 },
+            },
+          },
+        },
+      ]);
       const [uniqueNiches, uniqueTiers, uniqueRegions, uniqueKeywords] = await Promise.all([
         Influencer.distinct("primeNiche", filter),
         Influencer.distinct("audienceCityTier", filter),
-        Influencer.distinct("regions", filter),
+        Influencer.distinct("region", filter),
         Influencer.distinct("contentKeywords", filter),
       ]);
       res.json({
@@ -72,6 +91,7 @@ export class InfluencerController {
           tiers: uniqueTiers,
           regions: uniqueRegions,
           keywords: uniqueKeywords,
+          followerCountsBuckets: uniqueFollowerCountsBuckets,
         },
       });
     } catch (error: any) {
