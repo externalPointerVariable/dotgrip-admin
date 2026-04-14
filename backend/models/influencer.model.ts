@@ -4,6 +4,7 @@ interface IInfluencer extends Document {
   name?: string;
   instagramLink: string;
   primeNiche?: string | null;
+  region?: string | null;
   contentKeywords?: string[] | null;
   audienceCityTier?: string[] | null;
   instagram?: {
@@ -52,6 +53,7 @@ const InfluencerSchema = new Schema<IInfluencer>({
   primeNiche: { type: String, default: null },
   contentKeywords: { type: [String], default: null },
   audienceCityTier: { type: [String], default: null },
+  region: { type: String, default: null },
   instagram: {
     type: new Schema(
       {
