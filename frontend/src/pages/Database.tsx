@@ -71,9 +71,11 @@ function Database() {
           setRegions(data.uniqueFiltersValues.regions);
           setKeywords(data.uniqueFiltersValues.keywords);
           setCurrentPage(data.pagination.page);
-          setTotalPages(
-            Array.from({ length: data.pagination.totalPages }, (_, i) => i + 1),
-          );
+          const pagesArray = [];
+          for (let i = 1; i <= data.pagination.totalPages; i++) {
+            pagesArray.push(i);
+          }
+          setTotalPages(pagesArray);
           setFilteredInfluencers(data.data);
           setInfluencers(data.data);
         });
@@ -85,7 +87,7 @@ function Database() {
 
   useEffect(() => {
     fetchInfluencers();
-  }, [currentPage]);
+  }, [currentPage, activeNiche, activeTier, activeRegion, activeKeyword]);
 
   useEffect(() => {
     if (!searchQuery.trim() || !influencers) {
