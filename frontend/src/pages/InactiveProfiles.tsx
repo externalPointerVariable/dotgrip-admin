@@ -1,8 +1,6 @@
-import React from 'react';
-
 function InactiveProfiles() {
   return (
-    <div>InactiveProfiles</div>
+    <div>No inactive profiles at the moment.</div>
   )
 }
 

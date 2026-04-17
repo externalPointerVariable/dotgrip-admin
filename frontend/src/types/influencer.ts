@@ -42,7 +42,7 @@ interface IInfluencer {
     pricing?: "lite" | "standard" | "premium";
     renewalDate?: Date;
   } | null;
-  taskStatus: "pending" | "approved";
+  taskStatus: "pending" | "approved" | "inactive";
   _id: string;
 }
 
