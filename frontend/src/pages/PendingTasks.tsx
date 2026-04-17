@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Center,
   CloseButton,
   Drawer,
   Icon,
@@ -18,8 +17,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { IoMdOpen } from "react-icons/io";
-import InfluencerForm from "@/components/InfluencerForm";
 import { LuSheet } from "react-icons/lu";
+
+import InfluencerForm from "@/components/InfluencerForm";
 import { FileUploader } from "@/components/FileUploader";
 import type { Influencer } from "@/types/influencer";
 
@@ -27,31 +27,40 @@ export default function PendingTasks() {
   const [pendingTasks, setPendingTasks] = useState<Influencer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [approvalForm, setApprovalForm] = useState<{ id: string } | null>(null);
-  const [uploadFile, setUploadFile] = useState<boolean>(false);
+
+  const [approvalForm, setApprovalForm] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const [uploadFile, setUploadFile] = useState(false);
 
   const fetchPendingTasks = async (token: string) => {
     try {
-      fetch("http://localhost:8000/api/influencers/pending-influencers", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => {
-          if (response.status === 401) {
-            localStorage.removeItem("token");
-            throw new Error("Unauthorized. Please log in again.");
-            window.location.reload();
-          }
-          if (!response.ok) {
-            throw new Error("Failed to fetch pending tasks");
-          }
-          return response.json();
-        })
-        .then((data) => setPendingTasks(data));
-    } catch (error) {
+      const response = await fetch(
+        "http://localhost:8000/api/influencers/pending-influencers",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        window.location.reload();
+        throw new Error("Unauthorized");
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch pending tasks");
+      }
+
+      const data = await response.json();
+      setPendingTasks(data);
+    } catch (err) {
       setError("Failed to fetch pending tasks");
-      console.error("Error fetching pending tasks:", error);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -74,39 +83,56 @@ export default function PendingTasks() {
   const columns = [
     columnHelper.accessor("instagramLink", {
       header: "Instagram Link",
-      enableSorting: true,
-      cell: (info) => (
-        <Text>
-          {info.getValue() + " "}
-          <a href={info.getValue()} target="_blank" rel="noopener noreferrer">
-            <Icon as={IoMdOpen} boxSize={3} />
-          </a>
-        </Text>
-      ),
+      cell: (info) => {
+        const url = info.getValue();
+        const username = url.split("/").pop()?.split("?")[0];
+
+        return (
+          <Text color="cyan.400" fontSize="sm">
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              {username}
+              <Icon as={IoMdOpen} ml={1} boxSize={3} />
+            </a>
+          </Text>
+        );
+      },
     }),
+
     columnHelper.accessor("instagram.averageLikes", {
       header: "Average Likes",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
+      cell: (info) => <Text fontSize="sm">{info.getValue()}</Text>,
     }),
+
     columnHelper.accessor("instagram.followerCount", {
       header: "Follower Count",
-      enableSorting: true,
-      cell: (info) => <Text>{info.getValue()}</Text>,
+      cell: (info) => <Text fontSize="sm">{info.getValue()}</Text>,
     }),
+
     columnHelper.display({
       id: "status",
       header: "Status",
-      cell: () => <Text>Pending</Text>,
+      cell: () => (
+        <Text fontSize="sm" color="yellow.400">
+          Pending
+        </Text>
+      ),
     }),
+
     columnHelper.display({
       id: "actions",
       header: "Actions",
       cell: (info) => (
         <Button
-          bg={"cyan.600"}
-          color={"white"}
-          onClick={() => setApprovalForm({ id: info.row.original._id })}
+          size="sm"
+          bg="cyan.500"
+          color="white"
+          _hover={{ bg: "cyan.400" }}
+          onClick={() =>
+            setApprovalForm({
+              id: info.row.original._id,
+              name: info.row.original.name,
+            })
+          }
         >
           Approve
         </Button>
@@ -121,105 +147,128 @@ export default function PendingTasks() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  const handleCloseFileUpload = () => {
-    setUploadFile(false);
-  };
+  const handleCloseFileUpload = () => setUploadFile(false);
+  const handleCloseForm = () => setApprovalForm(null);
 
-  const handleCloseForm = () => {
-    setApprovalForm(null);
-  };
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  } else if (error) {
-    return <Text>Error: {error}</Text>;
-  }
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error}</Text>;
 
   if (uploadFile) {
     return <FileUploader closeDialog={handleCloseFileUpload} />;
   }
 
   return (
-    <Box>
-      <Button
-        marginEnd={"auto"}
-        variant={"ghost"}
-        border={"ActiveBorder"}
-        _hover={{ bg: "cyan.600" }}
-        onClick={() => setUploadFile(true)}
-      >
-        <Icon as={LuSheet} mr={2} />
-        Import
-      </Button>
-      <Center>
-        <Table.Root
-          p={20}
-          showColumnBorder={true}
+    <Box w="full" px={6} py={4}>
+      {/* Import Button */}
+      <Box display="flex" justifyContent="flex-end" mb={4}>
+        <Button
+          size="sm"
           variant="outline"
-          textAlign={"left"}
+          borderColor="gray.600"
+          _hover={{ bg: "gray.700" }}
+          onClick={() => setUploadFile(true)}
         >
+          <Icon as={LuSheet} mr={2} />
+          Import
+        </Button>
+      </Box>
+
+      {/* Table */}
+      <Box bg="gray.900" borderRadius="xl" overflow="hidden">
+        <Table.Root size="md" w="full">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th key={header.id}>
-                    {header.isPlaceholder ? null : (
-                      <Box
-                        as="button"
-                        onClick={header.column.getToggleSortingHandler()}
-                        cursor={
-                          header.column.getCanSort() ? "pointer" : "default"
-                        }
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        w="full"
-                        p={2}
-                        bg="transparent"
-                        border="none"
-                        _hover={{
-                          bg: header.column.getCanSort()
-                            ? "gray.100"
-                            : "transparent",
-                        }}
-                      >
+                    <Box
+                      as="button"
+                      onClick={header.column.getToggleSortingHandler()}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      w="full"
+                      px={4}
+                      py={3}
+                      fontWeight="semibold"
+                      fontSize="sm"
+                      color="gray.400"
+                      borderBottom="1px solid"
+                      borderColor="gray.700"
+                      _hover={{ bg: "gray.800" }}
+                    >
+                      <Box display="flex" alignItems="center" gap={2}>
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext(),
+                          header.getContext()
                         )}
+
+                        {/* 🔥 Dynamic Sorting Arrow */}
                         {header.column.getCanSort() && (
-                          <Text ml={2}>
+                          <Text
+                            fontSize="xs"
+                            transition="all 0.2s"
+                            color={
+                              header.column.getIsSorted()
+                                ? "cyan.400"
+                                : "gray.500"
+                            }
+                          >
                             {{
                               asc: "↑",
                               desc: "↓",
-                            }[header.column.getIsSorted() as string] ?? "↕"}
+                            }[
+                              header.column.getIsSorted() as string
+                            ] ?? "↕"}
                           </Text>
                         )}
                       </Box>
-                    )}
+                    </Box>
                   </th>
                 ))}
               </tr>
             ))}
           </thead>
+
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+              <tr
+                key={row.id}
+                style={{ transition: "background 0.2s" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#1a202c")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
+              >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <Box
+                      px={4}
+                      py={3}
+                      borderBottom="1px solid"
+                      borderColor="gray.800"
+                      fontSize="sm"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Box>
                   </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </Table.Root>
-      </Center>
+      </Box>
 
+      {/* Drawer */}
       <Drawer.Root
         open={!!approvalForm}
-        onOpenChange={(open) => {
-          if (open) handleCloseForm();
+        onOpenChange={({ open }) => {
+          if (!open) setApprovalForm(null);
         }}
       >
         <Portal>
@@ -237,7 +286,7 @@ export default function PendingTasks() {
                 {approvalForm && (
                   <InfluencerForm
                     influencerId={approvalForm.id}
-                    title=""
+                    influencerName={approvalForm.name}
                     onClose={handleCloseForm}
                   />
                 )}

@@ -3,21 +3,17 @@ import {
   Badge,
   Box,
   Card,
-  Flex,
   Grid,
   HStack,
-  IconButton,
   Text,
-  AvatarGroup,
-  VStack,
   Center,
 } from "@chakra-ui/react";
-import { FiEdit2 } from "react-icons/fi";
 import type { Influencer } from "@/types/influencer";
 import { useState } from "react";
 import { InfluencerProfile } from "@/pages";
 import { LuExternalLink } from "react-icons/lu";
-import InfluencerForm from "./InfluencerForm";
+
+/* ---------------- HELPERS ---------------- */
 
 const formatNumber = (value?: number | null) =>
   value === undefined || value === null ? "N/A" : value.toLocaleString();
@@ -30,7 +26,6 @@ const getInstagramHandle = (link: string) => {
     const handle = url.pathname.replace(/^\//, "").replace(/\/$/, "");
     return handle ? `@${handle}` : link;
   } catch {
-    // if not a valid URL, return as-is (maybe already an @handle)
     return link.startsWith("@") ? link : `@${link}`;
   }
 };
@@ -45,30 +40,54 @@ const getInitials = (name?: string) => {
     .join("");
 };
 
+/* ---------------- SMALL COMPONENT ---------------- */
+
+const Stat = ({
+  label,
+  value,
+  big = false,
+}: {
+  label: string;
+  value: string;
+  big?: boolean;
+}) => (
+  <Box>
+    <Text fontSize="xs" color="gray.500">
+      {label}
+    </Text>
+    <Text fontSize={big ? "xl" : "sm"} fontWeight={big ? "bold" : "semibold"}>
+      {value}
+    </Text>
+  </Box>
+);
+
+/* ---------------- MAIN COMPONENT ---------------- */
+
 interface CardViewProps {
-  influencers: [Influencer] | null;
+  influencers: Influencer[] | null;
 }
 
 export default function CardsView({ influencers }: CardViewProps) {
   const [current, setCurrent] = useState<Influencer | null>(null);
-  // const [edit, setEdit] = useState<Influencer["_id"] | null>(null);
 
   const unset = () => {
     setCurrent(null);
-    // setEdit(null);
   };
 
-  if (current)
+  if (current) {
     return (
       <InfluencerProfile
         dummyInfluencer={current}
         unsetSelectedInfluencer={unset}
       />
     );
-  // else if (edit) return <InfluencerForm influencerId={edit} onClose={unset} />;
+  }
+
   return (
-    <Center>
+    <Center w="100%">
       <Grid
+        maxW="1100px"
+        w="100%"
         gap={6}
         templateColumns={{
           base: "1fr",
@@ -76,182 +95,146 @@ export default function CardsView({ influencers }: CardViewProps) {
           lg: "repeat(3, 1fr)",
         }}
       >
-        {influencers &&
-          influencers.length > 0 &&
-          influencers.map((influencer) => {
+        {influencers
+          ?.filter((inf) => inf.taskStatus === "approved")
+          .map((influencer) => {
             const instagramHandle = getInstagramHandle(
-              influencer.instagramLink,
+              influencer.instagramLink
             );
-            const followers = formatNumber(influencer.instagram?.followerCount);
+
+            const followers = formatNumber(
+              influencer.instagram?.followerCount
+            );
             const views = formatNumber(influencer.instagram?.averageViews);
             const likes = formatNumber(influencer.instagram?.averageLikes);
             const comments = formatNumber(
-              influencer.instagram?.averageComments,
+              influencer.instagram?.averageComments
             );
-            const shares = formatNumber(influencer.instagram?.averageShares);
 
             const address = influencer.address?.[0];
             const contact = influencer.contact?.[0];
 
-            const statusBadge =
-              influencer.taskStatus === "approved" ? "Approved" : "Pending";
-            const activeBadge =
-              influencer.taskStatus === "approved" ? "Active" : "Inactive";
-
             return (
               <Card.Root
                 key={influencer._id}
-                bg="whiteAlpha.100"
-                borderRadius="lg"
+                maxW="340px"
+                w="100%"
+                bg="gray.900"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                borderRadius="xl"
                 boxShadow="lg"
-                overflow="hidden"
-                transitionDuration="0.25s"
-                _hover={{ transform: "translateY(-2px)", boxShadow: "xl" }}
+                transition="0.25s"
+                _hover={{
+                  transform: "translateY(-4px)",
+                  boxShadow: "2xl",
+                  borderColor: "cyan.400",
+                }}
               >
-                <Box bg="gray.800" px={5} py={4}>
-                  <Flex justify="space-between" align="center" gap={4}>
-                    <HStack>
-                      <AvatarGroup>
-                        <Avatar.Root bg="cyan.500" color="white" size="md">
-                          <Avatar.Fallback>
-                            {getInitials(influencer.name)}
-                          </Avatar.Fallback>
-                          <Avatar.Image
-                            src={undefined}
-                            alt={influencer.name ?? "Avatar"}
-                          />
-                        </Avatar.Root>
-                      </AvatarGroup>
+                {/* HEADER */}
+                <Box
+                  px={5}
+                  py={4}
+                  borderBottom="1px solid"
+                  borderColor="whiteAlpha.200"
+                >
+                  <HStack align="center" gap={3}>
+                    <Avatar.Root bg="cyan.500" size="md">
+                      <Avatar.Fallback>
+                        {getInitials(influencer.name)}
+                      </Avatar.Fallback>
+                    </Avatar.Root>
 
-                      <Box>
-                        <Text
-                          onClick={() => setCurrent(influencer)}
-                          fontSize="lg"
-                          fontWeight="bold"
+                    <Box flex="1">
+                      <Text
+                        fontWeight="semibold"
+                        fontSize="md"
+                        cursor="pointer"
+                        onClick={() => setCurrent(influencer)}
+                      >
+                        {influencer.name || "Unnamed"}
+                      </Text>
+
+                      <HStack fontSize="xs" color="gray.400">
+                        <Text>{instagramHandle}</Text>
+                        <a
+                          href={influencer.instagramLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
-                          {influencer.name || "Unnamed"}
-                        </Text>
-                        <HStack fontSize="sm" color="gray.300">
-                          {instagramHandle}
-                          <a href={influencer.instagramLink} target="_blank">
-                            <LuExternalLink />
-                          </a>
-                        </HStack>
-                      </Box>
-                    </HStack>
+                          <LuExternalLink />
+                        </a>
+                      </HStack>
+                    </Box>
+                  </HStack>
 
-                    {/* <IconButton
-                      aria-label="Edit"
-                      variant="ghost"
-                      color="gray.200"
-                      _hover={{ bg: "whiteAlpha.100" }}
-                      size="sm"
-                      onClick={() => setEdit(influencer._id)}
-                    >
-                      <FiEdit2 />
-                    </IconButton> */}
-                  </Flex>
-
-                  <HStack mt={3} wrap="wrap">
+                  {/* BADGES */}
+                  <HStack mt={3} gap={2} flexWrap="wrap">
                     {influencer.primeNiche && (
-                      <Badge colorScheme="cyan" variant="solid">
+                      <Badge colorScheme="cyan" variant="subtle">
                         {influencer.primeNiche}
                       </Badge>
                     )}
-                    <Badge
-                      colorScheme={activeBadge === "Active" ? "green" : "gray"}
-                    >
-                      {activeBadge}
+                    <Badge colorScheme="green" variant="subtle">
+                      Active
                     </Badge>
-                    <Badge
-                      colorScheme={
-                        statusBadge === "Approved" ? "green" : "yellow"
-                      }
-                    >
-                      {statusBadge}
+                    <Badge colorScheme="green" variant="solid">
+                      Approved
                     </Badge>
                   </HStack>
                 </Box>
 
+                {/* BODY */}
                 <Card.Body px={5} py={4}>
-                  <Flex justify="space-between" align="flex-end" mb={4}>
-                    <VStack align="flex-start">
-                      <Text fontSize="xs" color="gray.400">
-                        Followers
-                      </Text>
-                      <Text fontSize="2xl" fontWeight="bold">
-                        {followers}
-                      </Text>
-                    </VStack>
+                  {/* STATS */}
+                  <Grid templateColumns="repeat(2, 1fr)" gap={4} mb={4}>
+                    <Stat label="Followers" value={followers} big />
+                    <Stat label="Views" value={views} />
+                    <Stat label="Likes" value={likes} />
+                    <Stat label="Comments" value={comments} />
+                  </Grid>
 
-                    <HStack>
-                      <VStack align="flex-start">
-                        <Text fontSize="xs" color="gray.400">
-                          Views
-                        </Text>
-                        <Text fontWeight="semibold">{views}</Text>
-                      </VStack>
-                      <VStack align="flex-start">
-                        <Text fontSize="xs" color="gray.400">
-                          Likes
-                        </Text>
-                        <Text fontWeight="semibold">{likes}</Text>
-                      </VStack>
-                      <VStack align="flex-start">
-                        <Text fontSize="xs" color="gray.400">
-                          Comments
-                        </Text>
-                        <Text fontWeight="semibold">{comments}</Text>
-                      </VStack>
-                      <VStack align="flex-start">
-                        <Text fontSize="xs" color="gray.400">
-                          Shares
-                        </Text>
-                        <Text fontWeight="semibold">{shares}</Text>
-                      </VStack>
-                    </HStack>
-                  </Flex>
+                  {/* KEYWORDS */}
+                  <HStack flexWrap="wrap" mb={3}>
+                    {influencer.contentKeywords?.map((keyword) => (
+                      <Badge
+                        key={keyword}
+                        colorScheme="purple"
+                        variant="subtle"
+                      >
+                        {keyword}
+                      </Badge>
+                    ))}
+                  </HStack>
 
-                  <VStack align="stretch" mt={4}>
-                    <HStack wrap="wrap">
-                      {influencer.contentKeywords?.map((keyword) => (
-                        <Badge
-                          key={keyword}
-                          colorScheme="purple"
-                          variant="subtle"
-                        >
-                          {keyword}
-                        </Badge>
-                      ))}
-                    </HStack>
-
-                    {address && (
-                      <Text fontSize="sm" color="gray.300">
-                        {address.city ?? ""}
-                        {address.state ? `, ${address.state}` : ""}
-                        {address.country ? `, ${address.country}` : ""}
-                        {address.zipCode ? `, ${address.zipCode}` : ""}
-                        {address.region ? ` (${address.region})` : ""}
-                      </Text>
-                    )}
-
-                    {contact && (
-                      <Text fontSize="sm" color="gray.300">
-                        {contact.email ? `${contact.email}` : ""}
-                        {contact.phone ? ` • ${contact.phone}` : ""}
-                        {contact.type ? ` • ${contact.type}` : ""}
-                      </Text>
-                    )}
-
-                    <Text fontSize="xs" color="gray.500">
-                      {influencer.plan?.renewalDate
-                        ? `Renewal: ${new Date(influencer.plan.renewalDate).toLocaleDateString()}`
-                        : ""}
-                      {influencer.onboardDate
-                        ? ` • Onboarded: ${new Date(influencer.onboardDate).toLocaleDateString()}`
-                        : ""}
+                  {/* ADDRESS */}
+                  {address && (
+                    <Text fontSize="sm" color="gray.400" mb={1}>
+                      {address.city}
+                      {address.state && `, ${address.state}`}
+                      {address.country && `, ${address.country}`}
                     </Text>
-                  </VStack>
+                  )}
+
+                  {/* CONTACT */}
+                  {contact && (
+                    <Text fontSize="sm" color="gray.400">
+                      {contact.email}
+                      {contact.phone && ` • ${contact.phone}`}
+                    </Text>
+                  )}
+
+                  {/* FOOTER */}
+                  <Text fontSize="xs" color="gray.500" mt={2}>
+                    {influencer.plan?.renewalDate &&
+                      `Renewal: ${new Date(
+                        influencer.plan.renewalDate
+                      ).toLocaleDateString()}`}
+                    {influencer.onboardDate &&
+                      ` • Onboarded: ${new Date(
+                        influencer.onboardDate
+                      ).toLocaleDateString()}`}
+                  </Text>
                 </Card.Body>
               </Card.Root>
             );

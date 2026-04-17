@@ -8,6 +8,7 @@ const LoginPage: React.FC<{
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState({ message: "" });
 
   const handleLogin = () => {
     fetch("http://localhost:8000/api/auth/login", {
@@ -30,6 +31,7 @@ const LoginPage: React.FC<{
       })
       .catch((error) => {
         console.error("Login failed:", error);
+        setError({ message: "Login failed. Please check your credentials." });
         routeAfterLogin(false);
       });
   };
@@ -94,16 +96,13 @@ const LoginPage: React.FC<{
               {showPassword ? <LuEyeOff /> : <LuEye />}
             </Button>
           </Flex>
-
+          <Text fontSize="sm" color="red.400" alignSelf="center" mb={4}>
+            {error.message}
+          </Text>
           <Button colorScheme="teal" w="full" onClick={() => handleLogin()}>
             Sign in
           </Button>
         </VStack>
-
-        {/* Demo credentials */}
-        <Text fontSize="xs" color="gray.500" mt={6}>
-          Demo credentials: admin@dotgrip.com / admin123
-        </Text>
       </Box>
     </Flex>
   );

@@ -2,7 +2,6 @@ import {
   Avatar,
   Badge,
   Box,
-  Button,
   Flex,
   Heading,
   Icon,
@@ -10,6 +9,8 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  Center,
+  HStack,
 } from "@chakra-ui/react";
 import {
   LuArrowLeft,
@@ -17,24 +18,20 @@ import {
   LuPhone,
   LuMapPin,
   LuUsers,
-  LuPencil,
 } from "react-icons/lu";
 import { FaStar } from "react-icons/fa";
 import type { Influencer } from "@/types/influencer";
 
+/* ---------------- HELPERS ---------------- */
+
 const formatDate = (value?: string | Date | null) => {
   if (!value) return "-";
-  const date = new Date(value);
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
+  return new Date(value).toLocaleDateString();
 };
 
 const formatNumber = (value?: number) => {
   if (typeof value !== "number") return "-";
-  return value.toLocaleString(undefined, { maximumFractionDigits: 1 });
+  return value.toLocaleString();
 };
 
 const getEngagementRate = (inf: Influencer) => {
@@ -45,6 +42,8 @@ const getEngagementRate = (inf: Influencer) => {
   return ((likes + comments) / followers) * 100;
 };
 
+/* ---------------- COMPONENT ---------------- */
+
 const InfluencerProfile = ({
   dummyInfluencer,
   unsetSelectedInfluencer,
@@ -53,234 +52,231 @@ const InfluencerProfile = ({
   unsetSelectedInfluencer: () => void;
 }) => {
   const inf = dummyInfluencer;
-  const engagementRate = getEngagementRate(inf);
   const selfContact = inf.contact?.find((c) => c.type === "self");
   const managerContact = inf.contact?.find((c) => c.type === "manager");
   const location = inf.address?.[0];
+
   const handle =
     inf.instagramLink?.split("/").filter(Boolean).slice(-1)[0] ?? "";
-  const badgeColor = inf.taskStatus === "approved" ? "green" : "orange";
 
   return (
-    <Box maxW="1200px">
-      <Button variant="ghost" size="sm" onClick={unsetSelectedInfluencer}>
-        <LuArrowLeft />
-        Back to Database
-      </Button>
-
-      <Stack>
-        {/* Header Card */}
-        <Flex
-          borderRadius="lg"
-          bg={"gray.700"}
-          boxShadow="sm"
-          justify="space-between"
-          align="flex-start"
-          flexDir={{ base: "column", md: "row" }}
+    <Center w="100%">
+      <Box maxW="1100px" w="100%">
+        {/* BACK BUTTON */}
+        <HStack
+          mb={4}
+          gap={2}
+          cursor="pointer"
+          onClick={unsetSelectedInfluencer}
+          align="center"
         >
-          <Flex flex={1} minW={0}>
-            <Avatar.Root size="xl" key="xl">
-              <Avatar.Fallback name={inf.name ?? ""} />
-              <Avatar.Image src={undefined} alt={inf.name ?? "Avatar"} />
-            </Avatar.Root>
+          <Icon as={LuArrowLeft} boxSize={4} />
+          <Text fontSize="sm" fontWeight="medium">
+            Back to Database
+          </Text>
+        </HStack>
 
-            <Box flex={1} minW={0}>
-              <Heading size="md">{inf.name}</Heading>
-              <Stack>
-                <Link
-                  href={inf.instagramLink}
-                  color="cyan.600"
-                  fontWeight="medium"
-                >
-                  @{handle}
-                </Link>
-                <Stack direction="row">
-                  <Badge colorScheme={badgeColor} variant="subtle">
-                    {inf.taskStatus === "approved" ? "Active" : "Pending"}
-                  </Badge>
-                  <Badge colorScheme="green" variant="subtle">
-                    {inf.taskStatus === "approved" ? "Approved" : "Review"}
-                  </Badge>
-                  {inf.audienceCityTier?.map((tier) => (
-                    <Badge key={tier} colorScheme="purple" variant="subtle">
-                      {tier}
+        <Stack gap={6}>
+          {/* HEADER */}
+          <Box
+            bg="gray.900"
+            border="1px solid"
+            borderColor="whiteAlpha.200"
+            borderRadius="xl"
+            p={6}
+          >
+            <Flex
+              justify="space-between"
+              align="flex-start"
+              flexDir={{ base: "column", md: "row" }}
+              gap={6}
+            >
+              {/* LEFT */}
+              <HStack align="flex-start" gap={4}>
+                <Avatar.Root size="xl">
+                  <Avatar.Fallback name={inf.name ?? ""} />
+                </Avatar.Root>
+
+                <Box>
+                  <Heading size="md">{inf.name}</Heading>
+
+                  <Link
+                    href={inf.instagramLink}
+                    color="cyan.400"
+                    fontSize="sm"
+                  >
+                    @{handle}
+                  </Link>
+
+                  <HStack mt={2}>
+                    <Badge colorScheme="green" variant="subtle">
+                      Active
                     </Badge>
-                  ))}
-                </Stack>
-              </Stack>
+                    <Badge colorScheme="green">Approved</Badge>
+                    {inf.primeNiche && (
+                      <Badge colorScheme="cyan" variant="subtle">
+                        {inf.primeNiche}
+                      </Badge>
+                    )}
+                  </HStack>
 
-              <Stack direction="row">
-                {inf.primeNiche && (
-                  <Badge colorScheme="cyan" variant="outline">
-                    {inf.primeNiche}
-                  </Badge>
-                )}
-                {inf.contentKeywords?.map((kw) => (
-                  <Badge key={kw} colorScheme="gray" variant="outline">
-                    {kw}
-                  </Badge>
-                ))}
-              </Stack>
+                  <HStack mt={3}>
+                    <Text fontSize="sm" color="gray.400">
+                      Followers:
+                    </Text>
+                    <Text fontWeight="bold">
+                      {formatNumber(inf.instagram?.followerCount)}
+                    </Text>
+                  </HStack>
 
-              <Stack direction="row">
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Followers
-                  </Text>
-                  <Text fontSize="lg" fontWeight="semibold">
-                    {inf.instagram?.followerCountString ??
-                      formatNumber(inf.instagram?.followerCount)}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Rating
-                  </Text>
-                  <Stack direction="row">
-                    {Array.from({ length: 5 }).map((_, idx) => (
+                  <HStack mt={2}>
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Icon
-                        key={idx}
+                        key={i}
                         as={FaStar}
                         color={
-                          idx < (inf.contentRating ?? 0)
+                          i < (inf.contentRating ?? 0)
                             ? "yellow.400"
-                            : "gray.200"
+                            : "gray.600"
                         }
                       />
                     ))}
-                  </Stack>
+                  </HStack>
                 </Box>
+              </HStack>
+            </Flex>
+          </Box>
 
-                <Box>
-                  <Text fontSize="sm" color="gray.500">
-                    Engagement
-                  </Text>
-                  <Text fontSize="lg" fontWeight="semibold">
-                    {engagementRate.toFixed(2)}%
-                  </Text>
-                </Box>
+          {/* STATS */}
+          <SimpleGrid
+            columns={{ base: 1, sm: 2, md: 3 }}
+            gap={6}
+            w="100%"
+          >
+            {[
+              { label: "Avg Views", value: inf.instagram?.averageViews },
+              { label: "Avg Likes", value: inf.instagram?.averageLikes },
+              { label: "Avg Comments", value: inf.instagram?.averageComments },
+            ].map((stat) => (
+              <Box
+                key={stat.label}
+                bg="gray.900"
+                border="1px solid"
+                borderColor="whiteAlpha.200"
+                borderRadius="lg"
+                px={5}
+                py={4}
+                minH="100px"
+                display="flex"
+                flexDirection="column"
+                justifyContent="space-between"
+                transition="0.2s"
+                _hover={{
+                  borderColor: "cyan.400",
+                  transform: "translateY(-2px)",
+                }}
+              >
+                <Text fontSize="xs" color="gray.500">
+                  {stat.label}
+                </Text>
+
+                <Text fontSize="2xl" fontWeight="bold">
+                  {formatNumber(stat.value)}
+                </Text>
+              </Box>
+            ))}
+          </SimpleGrid>
+
+          {/* DETAILS */}
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+            {/* CONTACT */}
+            <Box
+              bg="gray.900"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+              borderRadius="xl"
+              p={5}
+            >
+              <Heading size="sm" mb={4}>
+                Contact
+              </Heading>
+
+              <Stack gap={3}>
+                <HStack>
+                  <Icon as={LuMail} />
+                  <Text>{selfContact?.email ?? "-"}</Text>
+                </HStack>
+                <HStack>
+                  <Icon as={LuPhone} />
+                  <Text>{selfContact?.phone ?? "-"}</Text>
+                </HStack>
+                <HStack>
+                  <Icon as={LuMail} />
+                  <Text>{managerContact?.email ?? "-"}</Text>
+                </HStack>
+                <HStack>
+                  <Icon as={LuPhone} />
+                  <Text>{managerContact?.phone ?? "-"}</Text>
+                </HStack>
               </Stack>
             </Box>
-          </Flex>
 
-          {/* <Button colorScheme="teal">
-            <LuPencil />
-            Edit Profile
-          </Button> */}
-        </Flex>
+            {/* PROFILE DETAILS */}
+            <Box
+              bg="gray.900"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+              borderRadius="xl"
+              p={5}
+            >
+              <Heading size="sm" mb={4}>
+                Profile Details
+              </Heading>
 
-        {/* Stats Cards */}
-        <SimpleGrid columns={{ base: 1, md: 4 }}>
-          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
-            <Text fontSize="sm" color="gray.500">
-              Avg Views
-            </Text>
-            <Text fontSize="2xl" fontWeight="bold">
-              {formatNumber(inf.instagram?.averageViews)}
-            </Text>
-          </Box>
-          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
-            <Text fontSize="sm" color="gray.500">
-              Avg Likes
-            </Text>
-            <Text fontSize="2xl" fontWeight="bold">
-              {formatNumber(inf.instagram?.averageLikes)}
-            </Text>
-          </Box>
-          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
-            <Text fontSize="sm" color="gray.500">
-              Avg Comments
-            </Text>
-            <Text fontSize="2xl" fontWeight="bold">
-              {formatNumber(inf.instagram?.averageComments)}
-            </Text>
-          </Box>
-          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
-            <Text fontSize="sm" color="gray.500">
-              Avg Shares
-            </Text>
-            <Text fontSize="2xl" fontWeight="bold">
-              {formatNumber(inf.instagram?.averageShares)}
-            </Text>
-          </Box>
-        </SimpleGrid>
-
-        <SimpleGrid columns={{ base: 1, md: 2 }}>
-          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
-            <Heading size="sm">Contact</Heading>
-            <Stack>
-              <Stack direction="row">
-                <Icon as={LuMail} color="gray.500" />
-                <Text fontWeight="medium">{selfContact?.email ?? "-"}</Text>
-              </Stack>
-              <Stack direction="row">
-                <Icon as={LuPhone} color="gray.500" />
-                <Text fontWeight="medium">{selfContact?.phone ?? "-"}</Text>
-              </Stack>
-              <Stack direction="row">
-                <Icon as={LuMail} color="gray.500" />
-                <Text fontWeight="medium">{managerContact?.email ?? "-"}</Text>
-              </Stack>
-              <Stack direction="row">
-                <Icon as={LuPhone} color="gray.500" />
-                <Text fontWeight="medium">{managerContact?.phone ?? "-"}</Text>
-              </Stack>
-            </Stack>
-          </Box>
-
-          <Box borderRadius="lg" bg={"gray.700"} boxShadow="sm">
-            <Heading size="sm">Profile Details</Heading>
-            <Stack>
-              <Stack direction="row" align="start">
-                <Icon as={LuMapPin} color="gray.500" />
-                <Box>
-                  <Text fontWeight="medium">Location</Text>
-                  <Text color="gray.500">
+              <Stack gap={3}>
+                <HStack align="start">
+                  <Icon as={LuMapPin} />
+                  <Text>
                     {location
-                      ? `${location.city}, ${location.state}, ${location.country} ${location.zipCode} (${location.region})`
+                      ? `${location.city}, ${location.state}, ${location.country}`
                       : "-"}
                   </Text>
-                </Box>
+                </HStack>
+
+                <HStack>
+                  <Icon as={LuUsers} />
+                  <Text>{managerContact?.email ?? "-"}</Text>
+                </HStack>
+
+                <HStack justify="space-between">
+                  <Text>Gender</Text>
+                  <Text color="gray.400">{inf.Gender ?? "-"}</Text>
+                </HStack>
+
+                <HStack justify="space-between">
+                  <Text>Age</Text>
+                  <Text color="gray.400">{inf.age ?? "-"} yrs</Text>
+                </HStack>
+
+                <HStack justify="space-between">
+                  <Text>Onboarded</Text>
+                  <Text color="gray.400">
+                    {formatDate(inf.onboardDate)}
+                  </Text>
+                </HStack>
+
+                <HStack justify="space-between">
+                  <Text>Renewal</Text>
+                  <Text color="gray.400">
+                    {formatDate(inf.plan?.renewalDate)}
+                  </Text>
+                </HStack>
               </Stack>
-              <Stack direction="row" align="start">
-                <Icon as={LuUsers} color="gray.500" />
-                <Box>
-                  <Text fontWeight="medium">Manager</Text>
-                  <Text color="gray.500">{managerContact?.email ?? "-"}</Text>
-                </Box>
-              </Stack>
-              <Stack direction="row">
-                <Text fontWeight="medium" minW="120px">
-                  Gender
-                </Text>
-                <Text color="gray.500">{inf.Gender ?? "-"}</Text>
-              </Stack>
-              <Stack direction="row">
-                <Text fontWeight="medium" minW="120px">
-                  Age
-                </Text>
-                <Text color="gray.500">{inf.age ?? "-"} yrs</Text>
-              </Stack>
-              <Stack direction="row">
-                <Text fontWeight="medium" minW="120px">
-                  Onboarded
-                </Text>
-                <Text color="gray.500">{formatDate(inf.onboardDate)}</Text>
-              </Stack>
-              <Stack direction="row">
-                <Text fontWeight="medium" minW="120px">
-                  Renewal
-                </Text>
-                <Text color="gray.500">
-                  {formatDate(inf.plan?.renewalDate)}
-                </Text>
-              </Stack>
-            </Stack>
-          </Box>
-        </SimpleGrid>
-      </Stack>
-    </Box>
+            </Box>
+          </SimpleGrid>
+        </Stack>
+      </Box>
+    </Center>
   );
 };
 

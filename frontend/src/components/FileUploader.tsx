@@ -1,4 +1,4 @@
-import { Button, Icon, FileUpload, Box, Center } from "@chakra-ui/react";
+import { Button, Icon, FileUpload, Box } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { LuUpload } from "react-icons/lu";
 
@@ -51,8 +51,21 @@ export const FileUploader: React.FC<{ closeDialog: () => void }> = ({
   };
 
   return (
-    <dialog open>
-      <form className="upload-form" onSubmit={handleSubmit}>
+<dialog
+  open
+  style={{
+    border: "none",
+    borderRadius: "8px",
+    padding: "20px",
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    margin: 0,
+    zIndex: 1000,
+  }}
+>
+        <form className="upload-form mr-3" onSubmit={handleSubmit}>
         <FileUpload.Root
           onChange={handleFileChange}
           disabled={loading}
