@@ -34,59 +34,74 @@ function Database() {
     [Influencer] | null
   >(null);
 
-  function fetchInfluencers() {
-    const queryParams = {
-      niches: activeNiche,
-      tier: activeTier,
-      regions: activeRegion,
-      keywords,
-      page: currentPage,
-    };
-
-    const url = new URL("http://localhost:8000/api/influencers/");
-    url.search = new URLSearchParams(queryParams.toString()).toString();
-    try {
-      fetch(`http://localhost:8000/api/influencers/?page=${currentPage}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-        .then((response) => {
-          if (response.status == 401) {
-            localStorage.removeItem("token");
-            window.location.reload();
-          }
-
-          return response;
-        })
-        .then((response) => {
-          setLoading(false);
-          return response.json();
-        })
-        .then((data) => {
-          setNiches(data.uniqueFiltersValues.niches);
-          setTiers(data.uniqueFiltersValues.tiers);
-          setRegions(data.uniqueFiltersValues.regions);
-          setKeywords(data.uniqueFiltersValues.keywords);
-          setCurrentPage(data.pagination.page);
-          const pagesArray = [];
-          for (let i = 1; i <= data.pagination.totalPages; i++) {
-            pagesArray.push(i);
-          }
-          setTotalPages(pagesArray);
-          setFilteredInfluencers(data.data);
-          setInfluencers(data.data);
-        });
-    } catch (error: any) {
-      setError(error.message);
-      console.error("Error fetching influencers:", error);
-    }
-  }
-
   useEffect(() => {
-    fetchInfluencers();
+    setLoading(true);
+
+    // 1. Fixed URL Construction (See Note 1)
+    const queryParams = new URLSearchParams({
+      page: currentPage.toString(),
+    });
+
+    // Only append filters if they actually have a value
+    if (activeNiche) queryParams.append("niches", activeNiche);
+    if (activeTier) queryParams.append("tier", activeTier);
+    if (activeKeyword) queryParams.append("keywords", activeKeyword);
+
+    const url = `http://localhost:8000/api/influencers/?${queryParams.toString()}`;
+
+    // 2. The Promise Chain
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((response) => {
+        // Handle Unauthorized
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          window.location.reload();
+          // Reject the promise to skip the next .then() block
+          return Promise.reject(new Error("Unauthorized"));
+        }
+
+        // Handle other HTTP errors
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Parse JSON
+        return response.json();
+      })
+      .then((data) => {
+        // Update state with parsed data
+        setNiches(data.uniqueFiltersValues.niches);
+        setTiers(data.uniqueFiltersValues.tiers);
+        setRegions(data.uniqueFiltersValues.regions);
+        setKeywords(data.uniqueFiltersValues.keywords);
+        setCurrentPage(data.pagination.page);
+
+        const pagesArray = Array.from(
+          { length: data.pagination.totalPages },
+          (_, i) => i + 1,
+        );
+        setTotalPages(pagesArray);
+
+        setFilteredInfluencers(data.data);
+        setInfluencers(data.data);
+      })
+      .catch((error) => {
+        // We ignore the custom "Unauthorized" error we threw above since we are reloading anyway
+        if (error.message !== "Unauthorized") {
+          setError(error.message);
+          console.error("Error fetching influencers:", error);
+        }
+      })
+      .finally(() => {
+        // Ensure loading stops whether it succeeds or fails
+        setLoading(false);
+      });
   }, [currentPage, activeNiche, activeTier, activeRegion, activeKeyword]);
 
   useEffect(() => {
@@ -137,45 +152,49 @@ function Database() {
             value={activeNiche}
             onChange={(e) => setActiveNiche(e.target.value)}
           >
-            <NativeSelect.Field placeholder="Filter by niche"></NativeSelect.Field>
-            {niches.map((niche) => (
-              <option key={niche} value={niche}>
-                {niche}
-              </option>
-            ))}
+            <NativeSelect.Field placeholder="Filter by niche">
+              {niches.map((niche) => (
+                <option key={niche} value={niche}>
+                  {niche}
+                </option>
+              ))}
+            </NativeSelect.Field>
           </NativeSelect.Root>
           <NativeSelect.Root
             value={activeTier}
             onChange={(e) => setActiveTier(e.target.value)}
           >
-            <NativeSelect.Field placeholder="Filter by tier"></NativeSelect.Field>
-            {tiers.map((tier) => (
-              <option key={tier} value={tier}>
-                {tier}
-              </option>
-            ))}
+            <NativeSelect.Field placeholder="Filter by tier">
+              {tiers.map((tier) => (
+                <option key={tier} value={tier}>
+                  {tier}
+                </option>
+              ))}
+            </NativeSelect.Field>
           </NativeSelect.Root>
           <NativeSelect.Root
             value={activeRegion}
             onChange={(e) => setActiveRegion(e.target.value)}
           >
-            <NativeSelect.Field placeholder="Filter by region"></NativeSelect.Field>
-            {regions.map((region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ))}
+            <NativeSelect.Field placeholder="Filter by region">
+              {regions.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </NativeSelect.Field>
           </NativeSelect.Root>
           <NativeSelect.Root
             value={activeKeyword}
             onChange={(e) => setActiveKeyword(e.target.value)}
           >
-            <NativeSelect.Field placeholder="Filter by keyword"></NativeSelect.Field>
-            {keywords.map((keyword) => (
-              <option key={keyword} value={keyword}>
-                {keyword}
-              </option>
-            ))}
+            <NativeSelect.Field placeholder="Filter by keyword">
+              {keywords.map((keyword) => (
+                <option key={keyword} value={keyword}>
+                  {keyword}
+                </option>
+              ))}
+            </NativeSelect.Field>
           </NativeSelect.Root>
         </HStack>
       </VStack>
