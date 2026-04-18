@@ -16,6 +16,7 @@ interface DatabaseTableProps {
 }
 
 export default function DatabaseTable({ influencers }: DatabaseTableProps) {
+  console.log(influencers);
   const [current, setCurrent] = useState<Influencer | null>(null);
 
   const unset = () => {
@@ -59,9 +60,7 @@ export default function DatabaseTable({ influencers }: DatabaseTableProps) {
 
                     <HStack>
                       {"@" +
-                        influencer.instagramLink
-                          .split("/")[3]
-                          ?.split("?")[0]}
+                        influencer.instagramLink.split("/")[3]?.split("?")[0]}
                       <a href={influencer.instagramLink} target="_blank">
                         <LuExternalLink />
                       </a>
@@ -69,9 +68,7 @@ export default function DatabaseTable({ influencers }: DatabaseTableProps) {
                   </Box>
                 </Table.Cell>
 
-                <Table.Cell>
-                  {influencer.instagram?.followerCount}
-                </Table.Cell>
+                <Table.Cell>{influencer.instagram?.followerCount}</Table.Cell>
 
                 <Table.Cell>
                   <RatingGroup.Root
@@ -87,15 +84,9 @@ export default function DatabaseTable({ influencers }: DatabaseTableProps) {
                 </Table.Cell>
 
                 <Table.Cell>{influencer.primeNiche}</Table.Cell>
-                <Table.Cell>
-                  {influencer.instagram?.averageViews}
-                </Table.Cell>
-                <Table.Cell>
-                  {influencer.instagram?.averageLikes}
-                </Table.Cell>
-                <Table.Cell>
-                  {influencer.address?.[0]?.city}
-                </Table.Cell>
+                <Table.Cell>{influencer.instagram?.averageViews}</Table.Cell>
+                <Table.Cell>{influencer.instagram?.averageLikes}</Table.Cell>
+                <Table.Cell>{influencer.address?.[0]?.city}</Table.Cell>
                 <Table.Cell>{influencer.taskStatus}</Table.Cell>
               </Table.Row>
             ))}

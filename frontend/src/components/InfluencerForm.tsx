@@ -18,11 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "./ui/toaster";
 
-const InfluencerForm = ({
-  influencerId,
-  influencerName,
-  onClose,
-}: any) => {
+const InfluencerForm = ({ influencerId, influencerName, onClose }: any) => {
   const [formData, setFormData] = useState<any>({
     name: influencerName || "",
     taskStatus: "pending",
@@ -66,7 +62,8 @@ const InfluencerForm = ({
   });
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData((prev: any) => ({ ...prev, [field]: value }));
+    const actualValue = Array.isArray(value) ? value[0] : value;
+    setFormData((prev: any) => ({ ...prev, [field]: actualValue }));
   };
 
   const handlePlanChange = (key: string, value: string) => {
@@ -90,13 +87,15 @@ const InfluencerForm = ({
     handleInputChange(field, updated);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
 
     const payload = {
       ...formData,
       taskStatus: "approved",
     };
+
+    console.log(payload);
 
     await fetch(`http://localhost:8000/api/influencers/${influencerId}`, {
       method: "PUT",
@@ -105,12 +104,6 @@ const InfluencerForm = ({
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(payload),
-    });
-
-    toaster.create({
-      title: "Success",
-      description: "Influencer updated",
-      type: "success",
     });
 
     onClose?.();
@@ -138,9 +131,7 @@ const InfluencerForm = ({
                   <Field.Label>Name</Field.Label>
                   <Input
                     value={formData.name || ""}
-                    onChange={(e) =>
-                      handleInputChange("name", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                   />
                 </Field.Root>
 
@@ -159,20 +150,16 @@ const InfluencerForm = ({
                 <Field.Root>
                   <Field.Label>Content Keywords</Field.Label>
                   <Wrap mb={2}>
-                    {formData.contentKeywords.map(
-                      (k: string, i: number) => (
-                        <WrapItem key={i}>
-                          <Tag.Root borderRadius="full">
-                            {k}
-                            <Tag.CloseTrigger
-                              onClick={() =>
-                                removeTag("contentKeywords", i)
-                              }
-                            />
-                          </Tag.Root>
-                        </WrapItem>
-                      )
-                    )}
+                    {formData.contentKeywords.map((k: string, i: number) => (
+                      <WrapItem key={i}>
+                        <Tag.Root borderRadius="full">
+                          {k}
+                          <Tag.CloseTrigger
+                            onClick={() => removeTag("contentKeywords", i)}
+                          />
+                        </Tag.Root>
+                      </WrapItem>
+                    ))}
                   </Wrap>
 
                   <Input
@@ -182,7 +169,7 @@ const InfluencerForm = ({
                         e.preventDefault();
                         addTag(
                           "contentKeywords",
-                          (e.target as HTMLInputElement).value
+                          (e.target as HTMLInputElement).value,
                         );
                         (e.target as HTMLInputElement).value = "";
                       }
@@ -194,20 +181,16 @@ const InfluencerForm = ({
                 <Field.Root>
                   <Field.Label>Audience City Tier</Field.Label>
                   <Wrap mb={2}>
-                    {formData.audienceCityTier.map(
-                      (t: string, i: number) => (
-                        <WrapItem key={i}>
-                          <Tag.Root borderRadius="full">
-                            {t}
-                            <Tag.CloseTrigger
-                              onClick={() =>
-                                removeTag("audienceCityTier", i)
-                              }
-                            />
-                          </Tag.Root>
-                        </WrapItem>
-                      )
-                    )}
+                    {formData.audienceCityTier.map((t: string, i: number) => (
+                      <WrapItem key={i}>
+                        <Tag.Root borderRadius="full">
+                          {t}
+                          <Tag.CloseTrigger
+                            onClick={() => removeTag("audienceCityTier", i)}
+                          />
+                        </Tag.Root>
+                      </WrapItem>
+                    ))}
                   </Wrap>
 
                   <Input
@@ -217,7 +200,7 @@ const InfluencerForm = ({
                         e.preventDefault();
                         addTag(
                           "audienceCityTier",
-                          (e.target as HTMLInputElement).value
+                          (e.target as HTMLInputElement).value,
                         );
                         (e.target as HTMLInputElement).value = "";
                       }
@@ -255,7 +238,7 @@ const InfluencerForm = ({
                     <Field.Label>Gender</Field.Label>
                     <Select.Root
                       collection={genderCollection}
-                      value={formData.Gender || ""}
+                      value={[formData.Gender]}
                       onValueChange={(e) =>
                         handleInputChange("Gender", e.value)
                       }
@@ -266,9 +249,7 @@ const InfluencerForm = ({
                       <Select.Content>
                         {genderCollection.items.map((item) => (
                           <Select.Item key={item.value} item={item}>
-                            <Select.ItemText>
-                              {item.label}
-                            </Select.ItemText>
+                            <Select.ItemText>{item.label}</Select.ItemText>
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -328,9 +309,7 @@ const InfluencerForm = ({
                     <Select.Content>
                       {pricingCollection.items.map((item) => (
                         <Select.Item key={item.value} item={item}>
-                          <Select.ItemText>
-                            {item.label}
-                          </Select.ItemText>
+                          <Select.ItemText>{item.label}</Select.ItemText>
                         </Select.Item>
                       ))}
                     </Select.Content>
