@@ -6,10 +6,10 @@ import express from "express";
 
 
 interface FilterQuery {
-  niches?: string;
-  tier?: string;
-  regions?: string;
-  keywords?: string;
+  primeNiche?: string;
+  audienceCityTier?: string;
+  region?: string;
+  contentKeywords?: string;
   taskstatus?: string;
   numberOfFollowers?: string;
   page?: string;
@@ -19,10 +19,10 @@ export class InfluencerController {
   static async getAllInfluencers(req: express.Request, res: express.Response) {
     try {
       const {
-        niches,
-        tier,
-        regions,
-        keywords,
+        primeNiche,
+        audienceCityTier,
+        region,
+        contentKeywords,
         numberOfFollowers,
         taskstatus = "approved",
         page = "1",
@@ -31,21 +31,21 @@ export class InfluencerController {
 
       const filter: any = {};
 
-      if (niches) {
-        filter.niches = niches;
+      if (primeNiche) {
+        filter.primeNiche = primeNiche;
       }
-      if (tier) {
-        filter.tier = tier;
+      if (audienceCityTier) {
+        filter.audienceCityTier = audienceCityTier;
       }
-      if (regions) {
-        filter.regions = regions;
+      if (region) {
+        filter.region = region;
       }
       if (numberOfFollowers) {
         const [min, max] = numberOfFollowers.split("-").map(Number);
         filter["instagram.followerCount"] = { $gte: min, $lte: max };
       }
-      if (keywords) {
-        const regex = new RegExp(keywords, "i"); 
+      if (contentKeywords) {
+        const regex = new RegExp(contentKeywords, "i"); 
         filter.$or = [
           { name: regex },
           { description: regex },
