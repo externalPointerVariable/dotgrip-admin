@@ -3,9 +3,8 @@ import cors from "cors";
 import connectDB from "./utils/mongo.utils.ts";
 import { AuthRoutes } from "./routes/auth.routes.ts";
 import influencerRoutes from "./routes/influencer.routes.ts";
-import {Application} from "express";
 
-const app: Application = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 
