@@ -1,7 +1,18 @@
-FROM oven/bun:1.1.0-alpine
-WORKDIR /usr/src/app
-COPY bun.lockb package.json ./
-RUN bun install --production
+# Use Bun official image
+FROM oven/bun:latest
+
+# Set working directory
+WORKDIR /app
+
+# Copy rest of the code
 COPY . .
+
+# Install dependencies
+RUN bun install
+
+
+# Expose port (your app runs on 8000)
 EXPOSE 8000
+
+# Start the app
 CMD ["bun", "start"]
