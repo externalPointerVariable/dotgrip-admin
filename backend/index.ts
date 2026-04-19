@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req: express.Request, res: express.Response) => {
-  res.json({ message: "Dot Grip Admin is Live" });
+  res.json({ message: "Dot Grip Admin is Live 🚀" });
 });
 
 app.use("/api/auth", AuthRoutes);
@@ -22,7 +22,7 @@ connectDB()
   .then(() => [
     console.log("✅ Database connected"),
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`Server is running using CI/CD on http://localhost:${PORT}`);
     }),
   ])
   .catch((error) => {
