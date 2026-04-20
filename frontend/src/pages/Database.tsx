@@ -47,7 +47,7 @@ function Database() {
     if (activeTier) queryParams.append("tier", activeTier);
     if (activeKeyword) queryParams.append("keywords", activeKeyword);
 
-    const url = `http://localhost:8000/api/influencers/?${queryParams.toString()}`;
+    const url = `${import.meta.env.VITE_BASE_URL}/influencers/?${queryParams.toString()}`;
 
     // 2. The Promise Chain
     fetch(url, {

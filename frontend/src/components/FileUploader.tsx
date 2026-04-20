@@ -27,14 +27,17 @@ export const FileUploader: React.FC<{ closeDialog: () => void }> = ({
     formData.append("excelFile", file);
 
     try {
-      const response = await fetch("http://localhost:8000/api/influencers/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/influencers/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
 
-        body: formData,
-      });
+          body: formData,
+        },
+      );
 
       if (response.ok) {
         setMessage("File uploaded successfully");
@@ -51,21 +54,21 @@ export const FileUploader: React.FC<{ closeDialog: () => void }> = ({
   };
 
   return (
-<dialog
-  open
-  style={{
-    border: "none",
-    borderRadius: "8px",
-    padding: "20px",
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    margin: 0,
-    zIndex: 1000,
-  }}
->
-        <form className="upload-form mr-3" onSubmit={handleSubmit}>
+    <dialog
+      open
+      style={{
+        border: "none",
+        borderRadius: "8px",
+        padding: "20px",
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        margin: 0,
+        zIndex: 1000,
+      }}
+    >
+      <form className="upload-form mr-3" onSubmit={handleSubmit}>
         <FileUpload.Root
           onChange={handleFileChange}
           disabled={loading}

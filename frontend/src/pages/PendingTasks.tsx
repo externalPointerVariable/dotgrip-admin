@@ -38,12 +38,12 @@ export default function PendingTasks() {
   const fetchPendingTasks = async (token: string) => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/influencers/pending-influencers",
+        `${import.meta.env.VITE_BASE_URL}/influencers/pending-influencers`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.status === 401) {
@@ -200,7 +200,7 @@ export default function PendingTasks() {
                       <Box display="flex" alignItems="center" gap={2}>
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
 
                         {/* 🔥 Dynamic Sorting Arrow */}
@@ -217,9 +217,7 @@ export default function PendingTasks() {
                             {{
                               asc: "↑",
                               desc: "↓",
-                            }[
-                              header.column.getIsSorted() as string
-                            ] ?? "↕"}
+                            }[header.column.getIsSorted() as string] ?? "↕"}
                           </Text>
                         )}
                       </Box>
@@ -253,7 +251,7 @@ export default function PendingTasks() {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </Box>
                   </td>

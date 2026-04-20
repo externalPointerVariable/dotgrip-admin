@@ -11,7 +11,7 @@ const LoginPage: React.FC<{
   const [error, setError] = useState({ message: "" });
 
   const handleLogin = () => {
-    fetch("http://localhost:8000/api/auth/login", {
+    fetch(`${import.meta.env.VITE_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
