@@ -4,7 +4,6 @@ import { getInstagramDetails } from "../utils/instagram.utils";
 import { SheetUtil } from "../utils/sheet.utils";
 import express from "express";
 
-
 interface FilterQuery {
   primeNiche?: string;
   audienceCityTier?: string;
@@ -40,16 +39,18 @@ export class InfluencerController {
       if (region) {
         filter.region = region;
       }
+      if (taskstatus === "approved") {
+        filter.taskStatus = "approved";
+      } else if (taskstatus === "pending") {
+        filter.taskStatus = "pending";
+      }
       if (numberOfFollowers) {
         const [min, max] = numberOfFollowers.split("-").map(Number);
         filter["instagram.followerCount"] = { $gte: min, $lte: max };
       }
       if (contentKeywords) {
-        const regex = new RegExp(contentKeywords, "i"); 
-        filter.$or = [
-          { name: regex },
-          { description: regex },
-        ];
+        const regex = new RegExp(contentKeywords, "i");
+        filter.$or = [{ name: regex }, { description: regex }];
       }
       const pageNumber: number = parseInt(page, 10);
       const limitNumber: number = parseInt(limit, 10);
@@ -72,12 +73,13 @@ export class InfluencerController {
           },
         },
       ]);
-      const [uniqueNiches, uniqueTiers, uniqueRegions, uniqueKeywords] = await Promise.all([
-        Influencer.distinct("primeNiche", filter),
-        Influencer.distinct("audienceCityTier", filter),
-        Influencer.distinct("region", filter),
-        Influencer.distinct("contentKeywords", filter),
-      ]);
+      const [uniqueNiches, uniqueTiers, uniqueRegions, uniqueKeywords] =
+        await Promise.all([
+          Influencer.distinct("primeNiche", filter),
+          Influencer.distinct("audienceCityTier", filter),
+          Influencer.distinct("region", filter),
+          Influencer.distinct("contentKeywords", filter),
+        ]);
       res.json({
         data: Influencers,
         pagination: {
@@ -99,9 +101,14 @@ export class InfluencerController {
     }
   }
 
-  static async getPendingInfluencers (req: express.Request, res: express.Response) {
+  static async getPendingInfluencers(
+    req: express.Request,
+    res: express.Response,
+  ) {
     try {
-      const pendingInfluencers = await Influencer.find({ taskStatus: "pending" });
+      const pendingInfluencers = await Influencer.find({
+        taskStatus: "pending",
+      });
       res.json(pendingInfluencers);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

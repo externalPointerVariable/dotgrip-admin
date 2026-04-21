@@ -16,7 +16,6 @@ import {
   Select,
   createListCollection,
 } from "@chakra-ui/react";
-import { toaster } from "./ui/toaster";
 
 const InfluencerForm = ({ influencerId, influencerName, onClose }: any) => {
   const [formData, setFormData] = useState<any>({
@@ -97,14 +96,17 @@ const InfluencerForm = ({ influencerId, influencerName, onClose }: any) => {
 
     console.log(payload);
 
-    await fetch(`http://localhost:8000/api/influencers/${influencerId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    await fetch(
+      `${import.meta.env.VITE_BASE_URL}/influencers/${influencerId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
+    );
 
     onClose?.();
   };
