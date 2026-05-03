@@ -15,18 +15,15 @@ import {
   LuSettings,
   LuUserX,
   LuClock,
-  LuUserCheck,
   LuLogOut,
 } from "react-icons/lu";
 
 import {
   Dashboard,
-  Profile,
   Settings,
   Database,
   InactiveProfiles,
   PendingTasks,
-  InfluencerProfile,
 } from "@/pages";
 
 interface SidebarProps {

@@ -34,9 +34,11 @@ const Header: React.FC<HeaderProps> = ({
   onToggleCollapse,
   isCollapsed,
 }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    { id: 1, message: "New user signed up", read: false },
-    { id: 2, message: "Database backup completed", read: false },
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  setNotifications([
+    { id: 1, message: "New user registered", read: false },
+    { id: 2, message: "Server backup completed", read: true },
+    { id: 3, message: "New comment on post", read: false },
   ]);
 
   return (

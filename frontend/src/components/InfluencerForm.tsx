@@ -86,7 +86,7 @@ const InfluencerForm = ({ influencerId, influencerName, onClose }: any) => {
     handleInputChange(field, updated);
   };
 
-  const handleSubmit = async (e: SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const payload = {

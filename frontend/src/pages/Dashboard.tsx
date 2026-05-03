@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   SimpleGrid,
@@ -19,56 +19,74 @@ interface TopNiche {
 }
 
 interface DashboardPropsValues {
-  numberOfInfluencers: object;
+  numberOfInfluencers: {
+    currentValue: number;
+    percentageChange: number;
+    changeType: "increase" | "decrease";
+  };
   pendingTasks: number;
   inactiveProfiles: number;
 }
 
 const Dashboard: React.FC = () => {
-  const [topNiches, setTopNiches] = useState<TopNiche[]>([
-    { name: "Fashion", influencers: 1, progressValue: 30 },
-    { name: "Fitness", influencers: 1, progressValue: 20 },
-    { name: "Beauty", influencers: 1, progressValue: 25 },
-    { name: "Tech", influencers: 1, progressValue: 15 },
-    { name: "Food", influencers: 1, progressValue: 10 },
-  ]);
-  const [dashboardValues, setDashboardValues] = useState<DashboardPropsValues>({
-    numberOfInfluencers: {
-      currentValue: 10,
-      percentageChange: 12,
-      changeType: "increase",
-    },
-    pendingTasks: 3,
-    inactiveProfiles: 2,
-  });
+  const [topNiches, setTopNiches] = useState<TopNiche[]>([]);
+  const [dashboardValues, setDashboardValues] = useState<DashboardPropsValues | null>(null);
+
+  useEffect(() => {
+    // Initializing data inside useEffect to prevent infinite loops
+    setTopNiches([
+      { name: "Fashion", influencers: 120, progressValue: 80 },
+      { name: "Tech", influencers: 90, progressValue: 60 },
+      { name: "Fitness", influencers: 70, progressValue: 50 },
+    ]);
+
+    setDashboardValues({
+      numberOfInfluencers: {
+        currentValue: 10,
+        percentageChange: 12,
+        changeType: "increase",
+      },
+      pendingTasks: 3,
+      inactiveProfiles: 2,
+    });
+  }, []);
+
+  // Loading state to prevent errors if dashboardValues is null
+  if (!dashboardValues) return null;
+
   return (
     <Box>
       {/* Metrics Section */}
-      <SimpleGrid
-        columns={{ base: 1, md: 3 }} // 3 cards side by side on desktop
-        gap={10} // more space between cards
-        mb={10}
-      >
+      <SimpleGrid columns={{ base: 1, md: 3 }} gap={10} mb={10}>
+        
+        {/* Total Influencers */}
         <Stat.Root
           bg="gray.700"
           transitionDuration="0.3s"
-          _hover={{ transform: "scale(1.02)" }} // subtle hover effect
-          p={8} // larger padding
-          borderRadius="lg" // slightly bigger radius
+          _hover={{ transform: "scale(1.02)" }}
+          p={8}
+          borderRadius="lg"
           color="white"
-          fontSize="lg" // bigger text overall
+          fontSize="lg"
         >
           <Flex justify="space-between" align="center" mb={2}>
             <Stat.Label fontSize="lg">Total Influencers</Stat.Label>
             <Icon as={LuUsers} boxSize={6} color="cyan.400" />
           </Flex>
-          <Stat.ValueText fontSize="3xl">10</Stat.ValueText>
+          <Stat.ValueText fontSize="3xl">
+            {dashboardValues.numberOfInfluencers.currentValue}
+          </Stat.ValueText>
           <Stat.HelpText fontSize="md">
-            <Stat.UpIndicator />
-            12% from last month
+            {dashboardValues.numberOfInfluencers.changeType === "increase" ? (
+              <Stat.UpIndicator />
+            ) : (
+              <Stat.DownIndicator />
+            )}
+            {dashboardValues.numberOfInfluencers.percentageChange}% from last month
           </Stat.HelpText>
         </Stat.Root>
 
+        {/* Pending Tasks */}
         <Stat.Root
           transitionDuration="0.3s"
           _hover={{ transform: "scale(1.02)" }}
@@ -82,10 +100,13 @@ const Dashboard: React.FC = () => {
             <Stat.Label fontSize="lg">Pending Tasks</Stat.Label>
             <Icon as={LuClock} boxSize={6} color="yellow.400" />
           </Flex>
-          <Stat.ValueText fontSize="3xl">3</Stat.ValueText>
+          <Stat.ValueText fontSize="3xl">
+            {dashboardValues.pendingTasks}
+          </Stat.ValueText>
           <Stat.HelpText fontSize="md">Awaiting approval</Stat.HelpText>
         </Stat.Root>
 
+        {/* Inactive Profiles */}
         <Stat.Root
           transitionDuration="0.3s"
           _hover={{ transform: "scale(1.02)" }}
@@ -99,12 +120,14 @@ const Dashboard: React.FC = () => {
             <Stat.Label fontSize="lg">Inactive Profiles</Stat.Label>
             <Icon as={LuUserX} boxSize={6} color="red.400" />
           </Flex>
-          <Stat.ValueText fontSize="3xl">2</Stat.ValueText>
+          <Stat.ValueText fontSize="3xl">
+            {dashboardValues.inactiveProfiles}
+          </Stat.ValueText>
           <Stat.HelpText fontSize="md">Need attention</Stat.HelpText>
         </Stat.Root>
       </SimpleGrid>
 
-      {/* Top Niches - Full Width with improved spacing */}
+      {/* Top Niches */}
       <Card.Root
         transitionDuration="0.3s"
         _hover={{ transform: "scale(1.01)" }}
@@ -115,9 +138,7 @@ const Dashboard: React.FC = () => {
         borderRadius="lg"
       >
         <Card.Title>
-          <Text fontSize="2xl" fontWeight="bold">
-            Top Niches
-          </Text>
+          <Text fontSize="2xl" fontWeight="bold">Top Niches</Text>
         </Card.Title>
         <Card.Body>
           <VStack align="stretch" gap={5}>
@@ -131,7 +152,7 @@ const Dashboard: React.FC = () => {
                 </Flex>
                 <Progress.Root
                   width={"90%"}
-                  defaultValue={niche.progressValue}
+                  value={niche.progressValue}
                   colorPalette={"cyan"}
                   variant={"outline"}
                 >
