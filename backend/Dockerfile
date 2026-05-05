@@ -1,18 +1,17 @@
-# Use Bun official image
 FROM oven/bun:latest
 
-# Set working directory
+# Use /app for consistency across containers
 WORKDIR /app
 
-# Copy rest of the code
+# Copy the .env file explicitly so it's baked into the image context
+COPY .env ./
+
+# Copy everything else
 COPY . .
 
-# Install dependencies
+# Install dependencies within the container
 RUN bun install
 
-
-# Expose port (your app runs on 8000)
 EXPOSE 8000
 
-# Start the app
 CMD ["bun", "start"]

@@ -34,8 +34,8 @@ const Header: React.FC<HeaderProps> = ({
   onToggleCollapse,
   isCollapsed,
 }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  setNotifications([
+  // ✅ Initialize state directly (no setState in render)
+  const [notifications] = useState<Notification[]>([
     { id: 1, message: "New user registered", read: false },
     { id: 2, message: "Server backup completed", read: true },
     { id: 3, message: "New comment on post", read: false },
@@ -70,6 +70,7 @@ const Header: React.FC<HeaderProps> = ({
             <TbLayoutSidebarLeftExpand size={22} />
           )}
         </IconButton>
+
         <Box>
           <Text fontSize="2xl" fontWeight="bold">
             {heading}
@@ -80,6 +81,7 @@ const Header: React.FC<HeaderProps> = ({
         </Box>
       </Flex>
 
+      {/* Notification Menu */}
       <MenuRoot>
         <Menu.Trigger asChild>
           <IconButton aria-label="User Menu" variant="ghost" color="white">
@@ -89,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
                 position="absolute"
                 top="0"
                 right="0"
-                transform="translate(50%, -50%)" // ✅ shifts badge to corner
+                transform="translate(50%, -50%)"
                 bg="red.500"
                 color="white"
                 borderRadius="full"
@@ -102,11 +104,13 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </IconButton>
         </Menu.Trigger>
+
         <Portal>
           <Menu.Positioner>
             <Menu.Content>
               {notifications.map((n) => (
                 <Menu.Item
+                  key={n.id} // ✅ added key
                   value={n.id.toString()}
                   color={n.read ? "gray.400" : "yellow.400"}
                 >

@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./backend
+    # This is the essential fix for MongoDB 'ECONNREFUSED' on WSL2
+    dns:
+      - 8.8.8.8
+    ports:
+      - "8000:8000"
+    restart: always
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
