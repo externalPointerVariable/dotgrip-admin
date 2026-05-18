@@ -20,20 +20,30 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # 1. Navigate to the root of the project (not just backend)
-            cd ~/dotgrip-admin 
+            # 1. Navigate to project root
+            cd ~/dotgrip-admin
 
-            # 2. Pull the latest code for the entire repo
+            # 2. Pull latest code
             git pull origin main
 
             # 3. Shutdown current setup
-            # We use the root docker-compose.yml now
             sudo docker compose down
 
-            # 4. Aggressive cleanup to save space on EC2
+            # 4. Aggressive cleanup
             sudo docker system prune -af
             sudo docker volume prune -f
 
-            # 5. Rebuild and restart everything
-            # This will use the build args defined in your new compose file
+            # 5. Ensure Buildx plugin is installed (x86_64 EC2)
+            sudo mkdir -p /usr/lib/docker/cli-plugins
+            curl -L https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 \
+              -o /usr/lib/docker/cli-plugins/docker-buildx
+            sudo chmod +x /usr/lib/docker/cli-plugins/docker-buildx
+
+            # 6. Restart Docker so it reloads plugins
+            sudo systemctl restart docker
+
+            # 7. Verify Buildx
+            docker buildx version || echo "Buildx not found"
+
+            # 8. Rebuild and restart everything
             sudo docker compose up --build -d
