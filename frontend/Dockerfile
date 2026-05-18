@@ -2,7 +2,6 @@ FROM oven/bun:latest AS build
 
 WORKDIR /app
 
-# Copy the frontend .env (Vite will look for VITE_ prefixed variables here)
 COPY .env ./
 
 COPY package.json bun.lock ./

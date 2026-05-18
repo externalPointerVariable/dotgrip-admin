@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import DatabaseTable from "@/components/DatabaseTable";
 import CardsView from "@/components/CardsView";
 import type { Influencer } from "@/types/influencer";
+import * as XLSX from "xlsx";
 
 function Database() {
   const [influencers, setInfluencers] = useState<[Influencer] | null>(null);
@@ -123,6 +124,14 @@ function Database() {
     );
   }, [searchQuery, influencers]);
 
+  const handleExport = () => {
+    console.log(influencers);
+    const workSheet = XLSX.utils.json_to_sheet(influencers || []);
+    const workBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Influencers");
+    XLSX.writeFile(workBook, "verified_influencers.xlsx");
+  };
+
   if (loading) return <Text>Loading...</Text>;
   else if (error) return <Text>{error}</Text>;
 
@@ -130,7 +139,7 @@ function Database() {
     <>
       <VStack w="100%" p={4} alignItems={"Space-between"}>
         <HStack w="100%" justifyContent={"space-between"}>
-          <Button _hover={{ bg: "cyan.600", color: "white" }}>
+          <Button _hover={{ bg: "cyan.600", color: "white" }} onClick={handleExport}>
             <Icon as={LuDownload} mr={2} />
             Export
           </Button>
