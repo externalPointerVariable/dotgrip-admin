@@ -1,24 +1,50 @@
+version: '3.8'
+
 services:
   backend:
     build: ./backend
-    # This is the essential fix for MongoDB 'ECONNREFUSED' on WSL2
     dns:
       - 8.8.8.8
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     restart: always
     networks:
       - app-network
 
   frontend:
     build: ./frontend
-    ports:
-      - "80:80"
+    expose:
+      - "3000"
     restart: always
     depends_on:
       - backend
     networks:
       - app-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    restart: always
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: /bin/sh
 
 networks:
   app-network:
