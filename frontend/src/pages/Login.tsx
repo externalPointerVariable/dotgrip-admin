@@ -12,7 +12,7 @@ const LoginPage: React.FC<{
 
   const handleLogin = () => {
     fetch(`${import.meta.env.VITE_BASE_URL}/auth/login`, {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
