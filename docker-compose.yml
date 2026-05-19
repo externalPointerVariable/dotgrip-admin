@@ -3,8 +3,6 @@ version: '3.8'
 services:
   backend:
     build: ./backend
-    dns:
-      - 8.8.8.8
     expose:
       - "8000"
     restart: always
@@ -14,7 +12,7 @@ services:
   frontend:
     build: ./frontend
     expose:
-      - "3000"
+      - "80"        # corrected from 3000
     restart: always
     depends_on:
       - backend
